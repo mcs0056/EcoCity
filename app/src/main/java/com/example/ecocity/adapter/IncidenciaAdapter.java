@@ -37,6 +37,20 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
         Incidencia i = lista.get(position);
         holder.titulo.setText(i.getTitulo());
         holder.descripcion.setText(i.getDescripcion());
+
+        int color;
+        switch (i.getUrgencia()) {
+            case 3:
+                color = 0xFFFFCDD2;
+                break;
+            case 2:
+                color = 0xFFFFF9C4;
+                break;
+            default:
+                color = 0xFFC8E6C9;
+        }
+
+        holder.itemView.setBackgroundColor(color);
     }
 
     @Override
