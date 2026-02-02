@@ -5,16 +5,16 @@ public class Incidencia {
     private int id;
     private String titulo;
     private String descripcion;
-    private int urgencia;
+    private int importancia; //"0=Baja", "1=Media", "2=Alta"
 
     //Constructores
     public Incidencia() {
 
     }
-    public Incidencia(String titulo, String descripcion, int urgencia) {
+    public Incidencia(String titulo, String descripcion, int importancia) {
         this.titulo = titulo;
         this.descripcion = descripcion;
-        this.urgencia = urgencia;
+        this.importancia = importancia;
     }
 
     //Getters
@@ -27,8 +27,8 @@ public class Incidencia {
     public String getDescripcion() {
         return descripcion;
     }
-    public int getUrgencia() {
-        return urgencia;
+    public int getImportancia() {
+        return importancia;
     }
 
 
@@ -42,8 +42,8 @@ public class Incidencia {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
-    public void setUrgencia(int urgencia) {
-        this.urgencia = urgencia;
+    public void setImportancia(int importancia) {
+        this.importancia = importancia;
     }
 }
 

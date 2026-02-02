@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">EcoCity</string>
+    <string-array name="importancias">
+        <item>Baja</item>
+        <item>Media</item>
+        <item>Alta</item>
+    </string-array>
 </resources>

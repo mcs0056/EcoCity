@@ -3,6 +3,7 @@ package com.example.ecocity.ui;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -35,45 +36,42 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         fab = findViewById(R.id.fab);
-
         emptyState = findViewById(R.id.emptyState);
 
         dao = new IncidenciaDAO(this);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         cargarDatos();
 
-        //Swipe para borrar incidencias
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-           @Override
-           public boolean onMove(@NonNull RecyclerView recyclerView,
-                                 @NonNull RecyclerView.ViewHolder viewHolder,
-                                 @NonNull RecyclerView.ViewHolder target) {
-               return false;
-           }
+        // Swipe para borrar incidencias
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-           @Override
+            @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-               int position = viewHolder.getAdapterPosition();
+                int position = viewHolder.getAdapterPosition();
 
-               new AlertDialog.Builder(viewHolder.itemView.getContext())
-                       .setTitle("Confirmar")
-                       .setMessage("¿Borrar esta incidencia?")
-                       .setPositiveButton("Sí", (dialog,which) -> {
-                           adapter.removeItem(position);
-
-                           Snackbar.make(recyclerView,
-                                   "Incidencia eliminada",
-                                   Snackbar.LENGTH_SHORT)
-                                   .show();
-                       })
-                       .setNegativeButton("No", (dialog,which) -> adapter.notifyItemChanged(position))
-                       .show();
-           }
+                new AlertDialog.Builder(viewHolder.itemView.getContext())
+                        .setTitle("Confirmar")
+                        .setMessage("¿Borrar esta incidencia?")
+                        .setPositiveButton("Sí", (dialog, which) -> {
+                            adapter.removeItem(position);
+                            Snackbar.make(recyclerView,
+                                            "Incidencia eliminada",
+                                            Snackbar.LENGTH_SHORT)
+                                    .show();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> adapter.notifyItemChanged(position))
+                        .show();
+            }
         };
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+        new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
 
         fab.setOnClickListener(v ->
                 startActivity(new Intent(this, AddIncidenciaActivity.class))
@@ -83,22 +81,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        cargarDatos();
+        cargarDatos(); // Recarga la lista al volver de AddIncidenciaActivity
     }
 
     private void cargarDatos() {
-        //Obtenemos las incidencias
         List<Incidencia> lista = dao.obtenerTodas();
 
-        //Creamos el adapter con la lista
-        adapter = new IncidenciaAdapter(this, dao.obtenerTodas());
-        recyclerView.setAdapter(adapter);
+        for (Incidencia i : lista) {
+            Log.d("MainActivity", "Incidencia cargada:" + i.getTitulo() + " - importancia: " + i.getImportancia());
+        }
 
-        //Mostramos u ocultamos empty state según haya datos
-        if(lista.isEmpty()){
+            adapter = new IncidenciaAdapter(this, lista);
+            recyclerView.setAdapter(adapter);
+
+        // Mostrar u ocultar empty state
+        if (lista.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyState.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyState.setVisibility(View.GONE);
         }

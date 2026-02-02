@@ -21,7 +21,7 @@ public class IncidenciaDAO {
         ContentValues cv = new ContentValues();
         cv.put("titulo", i.getTitulo());
         cv.put("descripcion", i.getDescripcion());
-        cv.put("urgencia", i.getUrgencia());
+        cv.put("importancia", i.getImportancia());
         db.insert("incidencia", null, cv);
         db.close();
     }
@@ -36,7 +36,7 @@ public class IncidenciaDAO {
             i.setId(c.getInt(0));
             i.setTitulo(c.getString(1));
             i.setDescripcion(c.getString(2));
-            i.setUrgencia(c.getInt(3));
+            i.setImportancia(c.getInt(c.getColumnIndexOrThrow("importancia")));
             lista.add(i);
         }
 
