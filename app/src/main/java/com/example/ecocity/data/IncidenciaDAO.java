@@ -22,6 +22,7 @@ public class IncidenciaDAO {
         cv.put("titulo", i.getTitulo());
         cv.put("descripcion", i.getDescripcion());
         cv.put("importancia", i.getImportancia());
+        cv.put("foto_ruta", i.getFotoRuta());
         db.insert("incidencia", null, cv);
         db.close();
     }
@@ -37,6 +38,7 @@ public class IncidenciaDAO {
             i.setTitulo(c.getString(1));
             i.setDescripcion(c.getString(2));
             i.setImportancia(c.getInt(c.getColumnIndexOrThrow("importancia")));
+            i.setFotoRuta(c.getString(c.getColumnIndexOrThrow("foto_ruta")));
             lista.add(i);
         }
 

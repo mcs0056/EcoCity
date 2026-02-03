@@ -31,6 +31,24 @@
         android:layout_marginTop="12dp" />
 
     <Button
+        android:id="@+id/btnFoto"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Hacer Foto"
+        android:drawableStart="@android:drawable/ic_menu_camera" />
+
+    <ImageView
+        android:id="@+id/ivFoto"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        android:background="#EEEEEE"
+        android:scaleType="centerCrop"
+        android:contentDescription="Vista previa de la foto" />
+
+    <Button
         android:id="@+id/btnGuardar"
         android:text="@string/guardar"
         android:layout_width="match_parent"
