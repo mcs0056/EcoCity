@@ -2,6 +2,7 @@ package com.example.ecocity.ui;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +25,10 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle);
+
+        //Botón flecha para volver
+        ImageButton btnVolver = findViewById(R.id.btnVolver);
+        btnVolver.setOnClickListener(v -> finish());
 
         ImageView ivFoto = findViewById(R.id.ivDetalleFoto);
         TextView tvTitulo = findViewById(R.id.tvDetalleTitulo);
@@ -72,5 +77,11 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
 
         // Deshabilitar gestos si solo quieres que sea una vista estática
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
     }
 }
