@@ -71,6 +71,8 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
             intent.putExtra("descripcion", i.getDescripcion());
             intent.putExtra("importancia", i.getImportancia());
             intent.putExtra("rutaFoto", i.getFotoRuta());
+            intent.putExtra("latitud", i.getLatitud());
+            intent.putExtra("longitud", i.getLongitud());
             context.startActivity(intent);
         });
     }

@@ -103,7 +103,7 @@ public class AddIncidenciaActivity extends AppCompatActivity {
             Log.d(TAG, "Iniciando guardado en hilo: " + Thread.currentThread().getName());
 
             // Aquí podrías añadir latitud y longitud a tu modelo Incidencia si lo deseas
-            Incidencia i = new Incidencia(titulo, desc, importancia, rutaFotoActual);
+            Incidencia i = new Incidencia(titulo, desc, importancia, rutaFotoActual, latitudSeleccionada, longitudSeleccionada);
             new IncidenciaDAO(AddIncidenciaActivity.this).insertar(i);
 
             mainHandler.post(() -> {
