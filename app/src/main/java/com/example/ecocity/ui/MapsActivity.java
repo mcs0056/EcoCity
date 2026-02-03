@@ -17,6 +17,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import android.location.Location;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback {
@@ -25,10 +28,13 @@ public class MapsActivity extends AppCompatActivity
     private Marker markerSeleccionado;
     private static final int LOCATION_PERMISSION = 1;
 
+    private FusedLocationProviderClient fusedLocationProviderClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager()
@@ -55,10 +61,18 @@ public class MapsActivity extends AppCompatActivity
         }
 
         mMap.setMyLocationEnabled(true);
-
-        // Posición inicial (por ejemplo tu ciudad)
-        LatLng ciudad = new LatLng(40.4168, -3.7038); // Madrid
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ciudad, 12));
+        fusedLocationProviderClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+            if(location != null){
+                LatLng miUbicacion = new LatLng(
+                        location.getLatitude(),
+                        location.getLongitude()
+                );
+                mMap.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(miUbicacion, 15)
+                );
+            }
+        });
 
         // Click largo para seleccionar ubicación
         mMap.setOnMapLongClickListener(latLng -> {
