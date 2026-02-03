@@ -7,24 +7,32 @@
 
     <EditText
         android:id="@+id/etTitulo"
-        android:hint="Título"
+        android:hint="@string/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <EditText
         android:id="@+id/etDescripcion"
-        android:hint="Descripción"
+        android:hint="@string/description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <Spinner
         android:id="@+id/spinnerImportancia"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown" />
+
+    <Button
+        android:id="@+id/btnUbicacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ubicacion"
+        android:layout_marginTop="12dp" />
 
     <Button
         android:id="@+id/btnGuardar"
-        android:text="Guardar"
+        android:text="@string/guardar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </LinearLayout>
