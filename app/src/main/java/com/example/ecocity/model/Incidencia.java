@@ -7,14 +7,17 @@ public class Incidencia {
     private String descripcion;
     private int importancia; //"0=Baja", "1=Media", "2=Alta"
 
+    private String fotoRuta;
+
     //Constructores
     public Incidencia() {
 
     }
-    public Incidencia(String titulo, String descripcion, int importancia) {
+    public Incidencia(String titulo, String descripcion, int importancia, String fotoRuta) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.importancia = importancia;
+        this.fotoRuta = fotoRuta;
     }
 
     //Getters
@@ -30,6 +33,8 @@ public class Incidencia {
     public int getImportancia() {
         return importancia;
     }
+    public String getFotoRuta() {return fotoRuta;}
+
 
 
     //Setters
@@ -45,5 +50,6 @@ public class Incidencia {
     public void setImportancia(int importancia) {
         this.importancia = importancia;
     }
+    public void setFotoRuta(String fotoRuta) {this.fotoRuta = fotoRuta;}
 }
 

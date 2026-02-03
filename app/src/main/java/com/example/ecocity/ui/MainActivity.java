@@ -1,106 +1,82 @@
 package com.example.ecocity.ui;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-
-import androidx.annotation.NonNull;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.ecocity.R;
 import com.example.ecocity.adapter.IncidenciaAdapter;
 import com.example.ecocity.data.IncidenciaDAO;
 import com.example.ecocity.model.Incidencia;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerView;
-    FloatingActionButton fab;
-    IncidenciaAdapter adapter;
-    IncidenciaDAO dao;
-    View emptyState;
+    private RecyclerView rv;
+    private IncidenciaAdapter adapter;
+    private List<Incidencia> listaIncidencias;
+    private IncidenciaDAO dao;
+    private TextView tvHeader;
+
+    // PSP: Executor para cargar datos sin bloquear la UI
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        fab = findViewById(R.id.fab);
-        emptyState = findViewById(R.id.emptyState);
-
         dao = new IncidenciaDAO(this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        rv = findViewById(R.id.rvIncidencias);
+        tvHeader = findViewById(R.id.tvHeaderTitle);
+        FloatingActionButton fab = findViewById(R.id.fabAdd);
 
-        cargarDatos();
+        listaIncidencias = new ArrayList<>();
+        adapter = new IncidenciaAdapter(this, listaIncidencias);
 
-        // Swipe para borrar incidencias
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView,
-                                  @NonNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
+        rv.setLayoutManager(new LinearLayoutManager(this));
+        rv.setAdapter(adapter);
 
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-
-                new AlertDialog.Builder(viewHolder.itemView.getContext())
-                        .setTitle("Confirmar")
-                        .setMessage("¿Borrar esta incidencia?")
-                        .setPositiveButton("Sí", (dialog, which) -> {
-                            adapter.removeItem(position);
-                            Snackbar.make(recyclerView,
-                                            "Incidencia eliminada",
-                                            Snackbar.LENGTH_SHORT)
-                                    .show();
-                        })
-                        .setNegativeButton("No", (dialog, which) -> adapter.notifyItemChanged(position))
-                        .show();
-            }
-        };
-        new ItemTouchHelper(simpleCallback).attachToRecyclerView(recyclerView);
-
-        fab.setOnClickListener(v ->
-                startActivity(new Intent(this, AddIncidenciaActivity.class))
-        );
+        fab.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, AddIncidenciaActivity.class));
+        });
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
-        cargarDatos(); // Recarga la lista al volver de AddIncidenciaActivity
+        super.onPostResume();
+        cargarDatosAsincronos();
     }
 
-    private void cargarDatos() {
-        List<Incidencia> lista = dao.obtenerTodas();
+    private void cargarDatosAsincronos() {
+        // PSP: Evitamos que la consulta a la base de datos ralentice la apertura de la app
+        executorService.execute(() -> {
+            List<Incidencia> nuevaLista = dao.obtenerTodas();
 
-        for (Incidencia i : lista) {
-            Log.d("MainActivity", "Incidencia cargada:" + i.getTitulo() + " - importancia: " + i.getImportancia());
-        }
+            // Volvemos al hilo principal para actualizar el RecyclerView
+            mainHandler.post(() -> {
+                listaIncidencias.clear();
+                listaIncidencias.addAll(nuevaLista);
+                adapter.notifyDataSetChanged();
 
-            adapter = new IncidenciaAdapter(this, lista);
-            recyclerView.setAdapter(adapter);
+                // Opcional: Actualizar el título con el conteo
+                tvHeader.setText("INCIDENCIAS (" + nuevaLista.size() + ")");
+            });
+        });
+    }
 
-        // Mostrar u ocultar empty state
-        if (lista.isEmpty()) {
-            recyclerView.setVisibility(View.GONE);
-            emptyState.setVisibility(View.VISIBLE);
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyState.setVisibility(View.GONE);
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 }

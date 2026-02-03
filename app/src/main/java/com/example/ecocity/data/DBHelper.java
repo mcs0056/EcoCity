@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "ecocity.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -19,7 +19,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "titulo TEXT NOT NULL," +
                         "descripcion TEXT," +
-                        "importancia INTEGER)"
+                        "importancia INTEGER,"+
+                        "foto_ruta TEXT)"
         );
     }
 
