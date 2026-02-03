@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
+                int position = viewHolder.getBindingAdapterPosition();
 
                 new AlertDialog.Builder(viewHolder.itemView.getContext())
                         .setTitle("Confirmar")
@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
                                             Snackbar.LENGTH_SHORT)
                                     .show();
                         })
-                        .setNegativeButton("No", (dialog, which) -> adapter.notifyItemChanged(position))
+                        .setNegativeButton("No", (dialog, which) -> {
+                            adapter.notifyItemChanged(position);
+                        })
                         .show();
             }
         };
@@ -87,12 +89,13 @@ public class MainActivity extends AppCompatActivity {
     private void cargarDatos() {
         List<Incidencia> lista = dao.obtenerTodas();
 
-        for (Incidencia i : lista) {
-            Log.d("MainActivity", "Incidencia cargada:" + i.getTitulo() + " - importancia: " + i.getImportancia());
-        }
-
-            adapter = new IncidenciaAdapter(this, lista);
+        if(adapter == null){
+            adapter = new IncidenciaAdapter(this,lista);
             recyclerView.setAdapter(adapter);
+        }else{
+            adapter.setLista(lista);
+            adapter.notifyDataSetChanged();
+        }
 
         // Mostrar u ocultar empty state
         if (lista.isEmpty()) {
