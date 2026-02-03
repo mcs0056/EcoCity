@@ -23,7 +23,7 @@ import java.util.List;
 
 public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.ViewHolder> {
 
-    private List<Incidencia> lista;
+    public List<Incidencia> lista;
     private IncidenciaDAO dao;
 
     public IncidenciaAdapter(Context context, List<Incidencia> lista) {

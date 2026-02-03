@@ -38,13 +38,19 @@ import java.util.concurrent.Executors;
 public class AddIncidenciaActivity extends AppCompatActivity {
 
     private static final String TAG = "EcoCity_PSP";
+    
+    // Vistas
     EditText etTitulo, etDescripcion;
     Spinner spImportancia;
-    Button btnGuardar, btnFoto;
+    Button btnGuardar, btnFoto, btnUbicacion;
     ImageView ivFoto;
+    
+    // Variables de estado
     String rutaFotoActual;
+    double latitudSeleccionada = 0;
+    double longitudSeleccionada = 0;
 
-    //Executors
+    // PSP: Gestión de hilos
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -53,19 +59,28 @@ public class AddIncidenciaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
 
+        // Inicialización de vistas
         etTitulo = findViewById(R.id.etTitulo);
         etDescripcion = findViewById(R.id.etDescripcion);
         spImportancia = findViewById(R.id.spinnerImportancia);
         btnGuardar = findViewById(R.id.btnGuardar);
         btnFoto = findViewById(R.id.btnFoto);
+        btnUbicacion = findViewById(R.id.btnUbicacion);
         ivFoto = findViewById(R.id.ivFoto);
 
+        // Configuración del Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this, R.array.importancias, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spImportancia.setAdapter(adapter);
 
+        // Listeners
         btnFoto.setOnClickListener(v -> pedirPermisoCamara());
+        
+        btnUbicacion.setOnClickListener(v -> {
+            Intent intent = new Intent(AddIncidenciaActivity.this, MapsActivity.class);
+            startActivityForResult(intent, 200);
+        });
 
         btnGuardar.setOnClickListener(v -> guardarIncidenciaAsincrona());
     }
@@ -80,18 +95,17 @@ public class AddIncidenciaActivity extends AppCompatActivity {
             return;
         }
 
-        // Bloqueamos el botón para evitar múltiples clics
         btnGuardar.setEnabled(false);
         Toast.makeText(this, "Guardando...", Toast.LENGTH_SHORT).show();
 
-        // PSP: Ejecutamos la inserción en la base de datos en un hilo secundario
+        // PSP: Guardado en hilo secundario para no bloquear la UI
         executorService.execute(() -> {
             Log.d(TAG, "Iniciando guardado en hilo: " + Thread.currentThread().getName());
 
+            // Aquí podrías añadir latitud y longitud a tu modelo Incidencia si lo deseas
             Incidencia i = new Incidencia(titulo, desc, importancia, rutaFotoActual);
             new IncidenciaDAO(AddIncidenciaActivity.this).insertar(i);
 
-            // PSP: Una vez finalizada la tarea pesada, volvemos al hilo de UI para cerrar la actividad
             mainHandler.post(() -> {
                 Log.d(TAG, "Tarea completada, volviendo a UI");
                 finish();
@@ -135,8 +149,22 @@ public class AddIncidenciaActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        
+        // Resultado de la Cámara
         if (requestCode == 101 && resultCode == RESULT_OK) {
-            ivFoto.setImageURI(Uri.parse(rutaFotoActual));
+            if (rutaFotoActual != null) {
+                ivFoto.setImageURI(Uri.parse(rutaFotoActual));
+            }
+        }
+        
+        // Resultado del Mapa
+        if (requestCode == 200 && resultCode == RESULT_OK && data != null) {
+            latitudSeleccionada = data.getDoubleExtra("latitud", 0);
+            longitudSeleccionada = data.getDoubleExtra("longitud", 0);
+
+            Toast.makeText(this,
+                    "Ubicación recibida: \n" + latitudSeleccionada + ", " + longitudSeleccionada,
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
