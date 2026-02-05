@@ -10,6 +10,7 @@
     <string name="title">Título</string>
     <string name="description">Descripción:</string>
     <string name="ubicacion">Seleccionar ubicación</string>
+    <string name="picture">HACER FOTO</string>
     <string name="guardar">Guardar</string>
     <!-- activity_detalle.xml -->
     <string name="back">Volver</string>
