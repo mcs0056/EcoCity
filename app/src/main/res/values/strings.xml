@@ -21,7 +21,7 @@
     <string name="password">Contraseña</string>
     <string name="enter">ENTRAR</string>
     <!-- activity_main.xml -->
-    <string name="my_incidents">MIS INCIDENCIAS</string>
+    <string name="incidents">INCIDENCIAS</string>
     <!-- activity_maps.xml -->
     <!-- item_incidencia -->
 
