@@ -1,20 +1,16 @@
 package com.example.ecocity.model;
 
+import com.google.firebase.firestore.Exclude;
+
 public class Incidencia {
+    private int id; // Usado para SQLite
+    private String titulo, descripcion, fotoRuta;
+    private int importancia;
+    private double latitud, longitud;
 
-    private int id;
-    private String titulo;
-    private String descripcion;
-    private int importancia; //"0=Baja", "1=Media", "2=Alta"
+    // CONSTRUCTOR VACÍO: Obligatorio para Firebase Firestore
+    public Incidencia() {}
 
-    private String fotoRuta;
-    private double latitud;
-    private double longitud;
-
-    //Constructores
-    public Incidencia() {
-
-    }
     public Incidencia(String titulo, String descripcion, int importancia, String fotoRuta, double latitud, double longitud) {
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -24,40 +20,26 @@ public class Incidencia {
         this.longitud = longitud;
     }
 
-    //Getters
-    public int getId() {
-        return id;
-    }
-    public String getTitulo() {
-        return titulo;
-    }
-    public String getDescripcion() {
-        return descripcion;
-    }
-    public int getImportancia() {
-        return importancia;
-    }
-    public String getFotoRuta() {return fotoRuta;}
+    // Getters y Setters...
+    @Exclude // Evita que el ID de SQLite se suba a Firebase si prefieres usar el ID de la nube
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+
+    public int getImportancia() { return importancia; }
+    public void setImportancia(int importancia) { this.importancia = importancia; }
+
+    public String getFotoRuta() { return fotoRuta; }
+    public void setFotoRuta(String fotoRuta) { this.fotoRuta = fotoRuta; }
+
     public double getLatitud() { return latitud; }
-    public double getLongitud() { return longitud; }
-
-
-
-    //Setters
-    public void setId(int id) {
-        this.id = id;
-    }
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-    public void setImportancia(int importancia) {
-        this.importancia = importancia;
-    }
-    public void setFotoRuta(String fotoRuta) {this.fotoRuta = fotoRuta;}
     public void setLatitud(double latitud) { this.latitud = latitud; }
+
+    public double getLongitud() { return longitud; }
     public void setLongitud(double longitud) { this.longitud = longitud; }
 }
-
