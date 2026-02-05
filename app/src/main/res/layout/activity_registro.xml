@@ -11,12 +11,26 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
+        android:background="@color/background"
         android:padding="24dp">
+
+        <ImageView
+            android:id="@+id/ivICon"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="Logo Ecocity"
+            android:scaleType="fitCenter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            android:layout_marginTop="16dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Crear Cuenta"
+            android:text="@string/create"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@color/black"
@@ -25,9 +39,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Únete a EcoCity para reportar incidencias"
+            android:text="@string/join"
             android:textSize="14sp"
-            android:textColor="#666666"
+            android:textColor="@color/black"
             android:layout_marginBottom="24dp"/>
 
         <androidx.cardview.widget.CardView
@@ -52,7 +66,7 @@
                         android:id="@+id/etNombreReg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Nombre"
+                        android:hint="@string/name"
                         android:inputType="textPersonName" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -66,7 +80,7 @@
                         android:id="@+id/etApellidosReg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Apellidos"
+                        android:hint="@string/lastname"
                         android:inputType="textPersonName" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,7 +94,7 @@
                         android:id="@+id/etEmailReg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Correo electrónico"
+                        android:hint="@string/email"
                         android:inputType="textEmailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -95,7 +109,7 @@
                         android:id="@+id/etPassReg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Contraseña (mín. 6 caracteres)"
+                        android:hint="@string/password2"
                         android:inputType="textPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -103,9 +117,9 @@
                     android:id="@+id/btnFinalizarRegistro"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
-                    android:text="REGISTRARSE"
-                    android:backgroundTint="@color/design_default_color_primary"
-                    android:textColor="@color/white"
+                    android:text="@string/REGISTER"
+                    android:backgroundTint="@color/background"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -115,7 +129,7 @@
             android:id="@+id/tvVolverLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="¿Ya tienes cuenta? Inicia sesión"
+            android:text="@string/inAlready"
             android:textColor="@color/design_default_color_primary"
             android:layout_marginTop="20dp"
             android:padding="8dp"
