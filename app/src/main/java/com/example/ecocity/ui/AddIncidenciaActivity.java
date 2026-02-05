@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 
 public class AddIncidenciaActivity extends AppCompatActivity {
 
-    // 1. DECLARACIÓN DE VARIABLES (Esto es lo que falta en tu foto)
+    // 1. DECLARACIÓN DE VARIABLES
     private EditText etTitulo, etDesc;
     private Spinner spImportancia;
     private Button btnGuardar, btnFoto, btnUbicacion;
@@ -56,7 +56,6 @@ public class AddIncidenciaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Cambia esto para que coincida con tu archivo XML
         setContentView(R.layout.activity_add);
 
         etTitulo = findViewById(R.id.etTitulo);
