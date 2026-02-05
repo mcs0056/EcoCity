@@ -34,7 +34,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="8dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp">
 
@@ -42,6 +41,7 @@
                     android:id="@+id/tvDetalleTitulo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="10dp"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/black" />
@@ -51,8 +51,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:textSize="14sp"
                     android:textStyle="italic" />
 
