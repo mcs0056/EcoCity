@@ -47,6 +47,24 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         latitud = getIntent().getDoubleExtra("latitud", 0);
         longitud = getIntent().getDoubleExtra("longitud", 0);
 
+        LinearLayout layoutTituloImportancia = findViewById(R.id.layoutTituloImportancia);
+
+        int colorFondo;
+        switch (importancia){
+            case 0:
+            colorFondo = getColor(R.color.importancia_baja);
+            break;
+            case 1:
+                colorFondo = getColor(R.color.importancia_media);
+                break;
+            case 2:
+                colorFondo = getColor(R.color.importancia_alta);
+                break;
+            default:
+                colorFondo = getColor(android.R.color.white);
+        }
+        layoutTituloImportancia.setBackgroundColor(colorFondo);
+
         // Asignamos valores de texto e imagen
         tvTitulo.setText(titulo);
         tvDescripcion.setText(desc);
@@ -87,22 +105,4 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         return true;
     }
 
-//    LinearLayout layoutTitulo = findViewById(R.id.layoutTituloImportancia);
-//    int importancia = getIntent().getIntExtra("importancia", 0);
-//
-//    int colorFondo;
-//    switch (importancia){
-//        case 0: //Baja
-//            colorFondo = getColor(R.color.importancia_baja);
-//            break;
-//        case 1: //Media
-//            colorFondo = getColor(R.color.importancia_media);
-//            break;
-//        case 2: //Alta
-//            colorFondo = getColor(R.color.importancia_alta);
-//            break;
-//        default:
-//            colorFondo = color.WHITE;
-//    }
-//    layoutTitulo.setBackgroundColor(colorFondo);
 }
