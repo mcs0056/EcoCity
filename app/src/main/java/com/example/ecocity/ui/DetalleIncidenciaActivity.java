@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.ecocity.R;
@@ -20,6 +21,7 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
 
     private double latitud, longitud;
     private String titulo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,4 +86,23 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         finish();
         return true;
     }
+
+//    LinearLayout layoutTitulo = findViewById(R.id.layoutTituloImportancia);
+//    int importancia = getIntent().getIntExtra("importancia", 0);
+//
+//    int colorFondo;
+//    switch (importancia){
+//        case 0: //Baja
+//            colorFondo = getColor(R.color.importancia_baja);
+//            break;
+//        case 1: //Media
+//            colorFondo = getColor(R.color.importancia_media);
+//            break;
+//        case 2: //Alta
+//            colorFondo = getColor(R.color.importancia_alta);
+//            break;
+//        default:
+//            colorFondo = color.WHITE;
+//    }
+//    layoutTitulo.setBackgroundColor(colorFondo);
 }
