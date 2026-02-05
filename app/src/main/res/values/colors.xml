@@ -4,6 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="purple_500">#6200EE</color>
     <color name="background">#FDC85F</color>
+    <color name="btnEntrar">#FFB215</color>
     <color name="importancia_baja">#4CAF50</color>
     <color name="importancia_media">#FFC107</color>
     <color name="importancia_alta">#F44336</color>
