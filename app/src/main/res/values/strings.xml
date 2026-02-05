@@ -8,7 +8,22 @@
     <string name="title_activity_maps">MapsActivity</string>
     <!-- activity_add.xml -->
     <string name="title">Título</string>
-    <string name="description">Descripción</string>
+    <string name="description">Descripción:</string>
     <string name="ubicacion">Seleccionar ubicación</string>
+    <string name="picture">HACER FOTO</string>
     <string name="guardar">Guardar</string>
+    <!-- activity_detalle.xml -->
+    <string name="back">Volver</string>
+    <string name="photo">Foto de la incidencia</string>
+    <string name="location">Ubicación de la incidencia:</string>
+    <!-- activity_login.xml -->
+    <string name="acceso">ACCESO</string>
+    <string name="user">Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="enter">ENTRAR</string>
+    <!-- activity_main.xml -->
+    <string name="incidents">INCIDENCIAS</string>
+    <!-- activity_maps.xml -->
+    <!-- item_incidencia -->
+
 </resources>
