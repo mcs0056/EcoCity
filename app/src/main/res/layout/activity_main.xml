@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/black"
         android:padding="20dp"
-        android:text="MIS INCIDENCIAS"
+        android:text="@string/my_incidents"
         android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"

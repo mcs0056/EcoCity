@@ -16,7 +16,7 @@
             android:layout_height="40dp"
             android:src="@drawable/ic_arrow_back"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Volver"
+            android:contentDescription="@string/back"
             android:tint="@android:color/black"
             android:layout_marginBottom="8dp" />
 
@@ -26,7 +26,7 @@
             android:layout_height="300dp"
             android:scaleType="centerCrop"
             android:background="#CCCCCC"
-            android:contentDescription="Foto de la incidencia" />
+            android:contentDescription="@string/photo" />
 
         <TextView
             android:id="@+id/tvDetalleTitulo"
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Ubicación de la incidencia:"
+            android:text="@string/location"
             android:textStyle="bold" />
 
         <fragment
@@ -72,7 +72,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Descripción:"
+            android:text="@string/description"
             android:textStyle="bold" />
 
         <TextView
