@@ -59,6 +59,10 @@
         <!-- Registro incidencias -->
         <activity android:name=".ui.DetalleIncidenciaActivity" />
 
+        <activity
+            android:name=".ui.RegistroActivity"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.ecocity.fileprovider"

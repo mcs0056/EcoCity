@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "461833484638",
+    "project_id": "com-example-ecocity",
+    "storage_bucket": "com-example-ecocity.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461833484638:android:8ddfd9a48d00081fb437cf",
+        "android_client_info": {
+          "package_name": "com.example.ecocity"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQOmomnah-C4eDD9kTLPJB7YyF9OpKeMs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

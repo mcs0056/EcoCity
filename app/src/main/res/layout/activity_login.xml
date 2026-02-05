@@ -57,4 +57,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <TextView
+        android:id="@+id/tvIrARegistro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¿No tienes cuenta? Regístrate aquí"
+        android:textColor="@color/design_default_color_primary"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
