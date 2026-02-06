@@ -38,34 +38,31 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginBottom="8dp"
-            android:divider="?android:attr/dividerVertical"
-            android:showDividers="middle"/>
+            android:layout_marginBottom="8dp">
 
-        <!-- Input -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/etMensaje"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Escribe tu mensaje"
-                android:padding="8dp"
-                android:inputType="textMultiLine"
-                android:maxLines="4"/>
-
-            <ImageButton
-                android:id="@+id/btnEnviar"
+            <Button
+                android:id="@+id/btnProblema"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_send"
-                android:contentDescription="Enviar"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="@color/black"/>
+                android:text="@string/technical"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/background"/>
+
+            <Button
+                android:id="@+id/btnConsulta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/consult"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/background" />
+
+            <Button
+                android:id="@+id/btnOtro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/another"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/background" />
         </LinearLayout>
 
     </LinearLayout>
