@@ -2,16 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:gravity="start"
     android:padding="8dp">
 
+    <ImageView
+        android:id="@+id/botIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_robot"
+        android:contentDescription="Bot"
+        android:layout_marginEnd="8dp" />
+
     <TextView
-        android:id="@+id/tvMensajeBot"
+        android:id="@+id/tvMensaje"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/background"
         android:textColor="@android:color/black"
-        android:padding="12dp"
+        android:padding="10dp"
         android:maxWidth="280dp"
         android:textSize="16sp" />
 </LinearLayout>

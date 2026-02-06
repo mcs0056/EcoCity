@@ -1,6 +1,7 @@
 package com.example.ecocity.ui;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,8 +21,8 @@ import java.util.List;
 public class SoporteActivity extends AppCompatActivity {
 
     private RecyclerView rvChat;
-    private EditText etMensaje;
-    private ImageButton bntEnviar, btnVolver;
+    private Button btnProblema, btnConsulta, btnOtro;
+    private ImageButton btnVolver;
     private LinearLayout layoutOpciones;
     private List<Mensaje> mensajes;
     private ChatAdapter chatAdapter;
@@ -32,8 +33,9 @@ public class SoporteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_soporte);
 
         rvChat = findViewById(R.id.rvChat);
-        etMensaje = findViewById(R.id.etMensaje);
-        bntEnviar = findViewById(R.id.btnEnviar);
+        Button btnProblema  = findViewById(R.id.btnProblema);
+        Button btnConsulta = findViewById(R.id.btnConsulta);
+        Button btnOtro = findViewById(R.id.btnOtro);
         btnVolver = findViewById(R.id.btnVolver);
         layoutOpciones = findViewById(R.id.layoutOpciones);
 
@@ -43,25 +45,31 @@ public class SoporteActivity extends AppCompatActivity {
         rvChat.setLayoutManager(new LinearLayoutManager(this));
         rvChat.setAdapter(chatAdapter);
 
+        aniadirMensaje("Hola, soy EcoBot, ¿en qué puedo ayudarte?", true);
+
+        //Listeners para los botones
+        btnProblema.setOnClickListener(v -> {
+            aniadirMensaje(getString(R.string.technical), false);
+            aniadirMensaje("Vale, no desesperes. Enseguida un técnico se pondrá en contacto con usted.", true);
+            layoutOpciones.setVisibility(View.GONE);
+        });
+
+        btnConsulta.setOnClickListener(v -> {
+            aniadirMensaje(getString(R.string.consult), false);
+            aniadirMensaje("Perfecto, te conecto con un operario que te pueda ayudar.", true);
+            layoutOpciones.setVisibility(View.GONE);
+        });
+
+        btnOtro.setOnClickListener(v -> {
+            aniadirMensaje(getString(R.string.another), false);
+            aniadirMensaje("De acuerdo, ¿podrías especificar tu caso con más detalle?", true);
+            layoutOpciones.setVisibility(View.GONE);
+        });
+
         //Botón para volver a MainActivity
         btnVolver.setOnClickListener(v ->{
             finish();
         });
-
-        //Mensaje inicial del bot
-        aniadirMensaje("Hola, soy EcoBot, ¿en qué puedo ayudarte?", true);
-
-        bntEnviar.setOnClickListener(v ->{
-            String texto = etMensaje.getText().toString().trim();
-            if(!texto.isEmpty()){
-                aniadirMensaje(texto, false);
-                etMensaje.setText("");
-
-                aniadirMensaje("EcoBot: Recibí tu mensaje \"" + texto + "\"", true);
-            }
-        });
-
-        agregarOpcionesRapidas(new String[]{"Problema técnico", "Consulta general", "Otro"});
     }
 
     private void aniadirMensaje(String texto, boolean esBot){

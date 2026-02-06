@@ -28,6 +28,9 @@
 
     <!-- activity_soporte.xml -->
     <string name="chatBot">Soporte Técnico</string>
+    <string name="technical">Problema técnico</string>
+    <string name="consult">Consulta general</string>
+    <string name="another">Otro</string>
     <!-- activity.registro.xml -->
     <string name="create">Crear Cuenta</string>
     <string name="join">Únete a EcoCity para reportar incidencias</string>

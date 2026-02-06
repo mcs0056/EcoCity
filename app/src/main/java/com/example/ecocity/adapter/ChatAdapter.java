@@ -33,23 +33,18 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (viewType == TIPO_BOT) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_mensaje_bot, parent, false);
-            return new BotViewHolder(view);
+            return new MensajeViewHolder(view);
         } else {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_mensaje_usuario, parent, false);
-            return new UsuarioViewHolder(view);
+            return new MensajeViewHolder(view);
         }
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Mensaje mensaje = mensajes.get(position);
-
-        if (holder instanceof BotViewHolder) {
-            ((BotViewHolder) holder).tvMensaje.setText(mensaje.getTexto());
-        } else {
-            ((UsuarioViewHolder) holder).tvMensaje.setText(mensaje.getTexto());
-        }
+        ((MensajeViewHolder) holder).tvMensaje.setText(mensaje.getTexto());
     }
 
     @Override
@@ -57,21 +52,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return mensajes.size();
     }
 
-    static class BotViewHolder extends RecyclerView.ViewHolder {
+    static class MensajeViewHolder extends RecyclerView.ViewHolder {
         TextView tvMensaje;
 
-        BotViewHolder(View itemView) {
-            super(itemView);
-            tvMensaje = itemView.findViewById(R.id.tvMensajeBot);
-        }
-    }
-
-    static class UsuarioViewHolder extends RecyclerView.ViewHolder {
-        TextView tvMensaje;
-
-        UsuarioViewHolder(View itemView) {
-            super(itemView);
-            tvMensaje = itemView.findViewById(R.id.tvMensajeUsuario);
+        MensajeViewHolder(View itemView){
+        super(itemView);
+        tvMensaje = itemView.findViewById(R.id.tvMensaje);
         }
     }
 }
