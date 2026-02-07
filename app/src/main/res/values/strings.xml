@@ -25,6 +25,21 @@
     <!-- activity_main.xml -->
     <string name="incidents">INCIDENCIAS</string>
     <!-- activity_maps.xml -->
+
+    <!-- activity_soporte.xml -->
+    <string name="chatBot">Soporte Técnico</string>
+    <string name="technical">Problema técnico</string>
+    <string name="consult">Consulta general</string>
+    <string name="another">Otro</string>
+    <!-- activity.registro.xml -->
+    <string name="create">Crear Cuenta</string>
+    <string name="join">Únete a EcoCity para reportar incidencias</string>
+    <string name="name">Nombre</string>
+    <string name="lastname">Apellidos</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password2">Contraseña (mín. 6 caracteres)</string>
+    <string name="REGISTER">REGISTRARSE</string>
+    <string name="inAlready">¿Ya tienes cuenta? Inicia sesión</string>
     <!-- item_incidencia -->
 
 </resources>

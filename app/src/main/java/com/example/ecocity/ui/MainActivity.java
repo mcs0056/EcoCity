@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -19,7 +18,6 @@ import com.example.ecocity.adapter.IncidenciaAdapter;
 import com.example.ecocity.data.IncidenciaDAO;
 import com.example.ecocity.model.Incidencia;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         rv = findViewById(R.id.rvIncidencias);
         tvHeader = findViewById(R.id.tvHeaderTitle);
         FloatingActionButton fab = findViewById(R.id.fabAdd);
+        FloatingActionButton fabQuestion = findViewById(R.id.fabQuestion);
 
         listaIncidencias = new ArrayList<>();
         adapter = new IncidenciaAdapter(this, listaIncidencias);
@@ -86,6 +85,10 @@ public class MainActivity extends AppCompatActivity {
         };
 
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(rv);
+
+        fabQuestion.setOnClickListener(v ->
+                startActivity(new Intent(this, SoporteActivity.class))
+        );
 
         fab.setOnClickListener(v ->
                 startActivity(new Intent(this, AddIncidenciaActivity.class))
