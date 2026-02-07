@@ -18,6 +18,7 @@ import com.example.ecocity.R;
 import com.example.ecocity.adapter.IncidenciaAdapter;
 import com.example.ecocity.data.IncidenciaDAO;
 import com.example.ecocity.model.Incidencia;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -45,13 +46,35 @@ public class MainActivity extends AppCompatActivity {
         dao = new IncidenciaDAO(this);
         rv = findViewById(R.id.rvIncidencias);
         tvHeader = findViewById(R.id.tvHeaderTitle);
-        FloatingActionButton fab = findViewById(R.id.fabAdd);
+        // Se elimina la referencia al fabAdd aquí
 
         listaIncidencias = new ArrayList<>();
         adapter = new IncidenciaAdapter(this, listaIncidencias);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
+        // CONFIGURACIÓN DE LA BARRA INFERIOR
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_incidencias) {
+                return true;
+            } else if (id == R.id.nav_add) {
+                // Ahora esta es la única forma de ir a añadir
+                startActivity(new Intent(this, AddIncidenciaActivity.class));
+                return true;
+            } else if (id == R.id.nav_chatbot) {
+                Toast.makeText(this, "Módulo Chatbot próximamente", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.nav_perfil) {
+                Toast.makeText(this, "Perfil de usuario próximamente", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return false;
+        });
+
+        // Lógica de Swipe to Delete (Se mantiene igual)
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -67,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                         .setTitle("Confirmar")
                         .setMessage("¿Borrar esta incidencia?")
                         .setPositiveButton("Sí", (dialog, which) -> {
-                            // PSP: Borrado en base de datos
                             executorService.execute(() -> {
                                 dao.eliminar(incidenciaABorrar.getId());
                                 mainHandler.post(() -> {
@@ -86,28 +108,31 @@ public class MainActivity extends AppCompatActivity {
         };
 
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(rv);
-
-        fab.setOnClickListener(v ->
-                startActivity(new Intent(this, AddIncidenciaActivity.class))
-        );
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        cargarDatosAsincronos();
-    }
-
     private void cargarDatosAsincronos() {
         executorService.execute(() -> {
             List<Incidencia> nuevaLista = dao.obtenerTodas();
+
             mainHandler.post(() -> {
+                int cantidad = nuevaLista.size();
+
+                Toast.makeText(MainActivity.this, "Datos cargados: " + cantidad, Toast.LENGTH_SHORT).show();
+
+                tvHeader.setText("INCIDENCIAS (" + cantidad + ")");
+
                 listaIncidencias.clear();
                 listaIncidencias.addAll(nuevaLista);
                 adapter.notifyDataSetChanged();
-                tvHeader.setText("INCIDENCIAS (" + nuevaLista.size() + ")");
+
+                android.util.Log.d("ECOCITY_DEBUG", "Total en lista: " + listaIncidencias.size());
             });
         });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // ESTO ES LO QUE HACE QUE SE VEAN AL VOLVER DE REGISTRAR UNA
+        cargarDatosAsincronos();
     }
 
     @Override
@@ -115,4 +140,4 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         executorService.shutdown();
     }
-}
+} 
