@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -18,6 +20,8 @@ import com.example.ecocity.adapter.IncidenciaAdapter;
 import com.example.ecocity.data.IncidenciaDAO;
 import com.example.ecocity.model.Incidencia;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         dao = new IncidenciaDAO(this);
         rv = findViewById(R.id.rvIncidencias);
         tvHeader = findViewById(R.id.tvHeaderTitle);
-        FloatingActionButton fab = findViewById(R.id.fabAdd);
+        FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
         FloatingActionButton fabQuestion = findViewById(R.id.fabQuestion);
 
         listaIncidencias = new ArrayList<>();
@@ -51,6 +55,72 @@ public class MainActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
+        // Listeners
+        fabAdd.setOnClickListener(v -> startActivity(new Intent(this, AddIncidenciaActivity.class)));
+        fabQuestion.setOnClickListener(v -> { /* Ayuda */ });
+
+        setupSwipeToDelete();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cargarDatosLocales();
+        escucharIncidenciasCloud();
+    }
+
+    private void cargarDatosLocales() {
+        executorService.execute(() -> {
+            List<Incidencia> local = dao.obtenerTodas();
+            mainHandler.post(() -> {
+                if (listaIncidencias.isEmpty()) {
+                    listaIncidencias.addAll(local);
+                    adapter.notifyDataSetChanged();
+                    tvHeader.setText("INCIDENCIAS (" + local.size() + ")");
+                }
+            });
+        });
+    }
+
+    private void escucharIncidenciasCloud() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Escuchamos la colección "incidencias"
+        db.collection("incidencias")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e("Firestore", "Error al recibir datos: " + error.getMessage());
+                        return;
+                    }
+
+                    if (value != null) {
+                        List<Incidencia> listaCloud = new ArrayList<>();
+
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            // 1. Convertimos el documento al objeto Incidencia
+                            Incidencia inc = doc.toObject(Incidencia.class);
+
+                            if (inc != null) {
+                                // 2. Guardamos el ID del documento (ej: "xjk6ZhquN...")
+                                inc.setFirebaseId(doc.getId());
+
+                                listaCloud.add(inc);
+                            }
+                        }
+
+                        // 3. Actualizamos la lista y la interfaz
+                        listaIncidencias.clear();
+                        listaIncidencias.addAll(listaCloud);
+                        adapter.notifyDataSetChanged();
+
+                        // Actualizamos el contador del encabezado
+                        tvHeader.setText("INCIDENCIAS (" + listaCloud.size() + ")");
+
+                        Log.d("ECOCITY_DEBUG", "Sincronizados " + listaCloud.size() + " elementos desde la nube.");
+                    }
+                });
+    }
+    private void setupSwipeToDelete() {
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -60,57 +130,42 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
-                Incidencia incidenciaABorrar = listaIncidencias.get(position);
+                Incidencia aBorrar = listaIncidencias.get(position);
+
+                // Obtenemos el ID de Firebase que guardamos al cargar la lista
+                String idFirestore = aBorrar.getFirebaseId();
 
                 new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Confirmar")
-                        .setMessage("¿Borrar esta incidencia?")
+                        .setTitle("Eliminar permanentemente")
+                        .setMessage("¿Estás seguro? Se borrará para todos los usuarios.")
                         .setPositiveButton("Sí", (dialog, which) -> {
-                            // PSP: Borrado en base de datos
+
+                            // 1. Borrar de Firestore (Nube)
+                            if (idFirestore != null) {
+                                FirebaseFirestore.getInstance().collection("incidencias")
+                                        .document(idFirestore)
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> Log.d("Cloud", "Incidencia borrada"))
+                                        .addOnFailureListener(e -> Log.e("Cloud", "Error al borrar", e));
+                            }
+
+                            // 2. Borrar de SQLite (Local)
                             executorService.execute(() -> {
-                                dao.eliminar(incidenciaABorrar.getId());
+                                dao.eliminar(aBorrar.getId());
                                 mainHandler.post(() -> {
-                                    listaIncidencias.remove(position);
-                                    adapter.notifyItemRemoved(position);
-                                    tvHeader.setText("INCIDENCIAS (" + listaIncidencias.size() + ")");
+                                    // No hace falta hacer mucho más, el SnapshotListener
+                                    // quitará la tarjeta automáticamente al detectar el borrado.
+                                    Toast.makeText(MainActivity.this, "Incidencia eliminada", Toast.LENGTH_SHORT).show();
                                 });
                             });
                         })
                         .setNegativeButton("No", (dialog, which) -> {
                             adapter.notifyItemChanged(position);
                         })
-                        .setCancelable(false)
                         .show();
             }
         };
-
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(rv);
-
-        fabQuestion.setOnClickListener(v ->
-                startActivity(new Intent(this, SoporteActivity.class))
-        );
-
-        fab.setOnClickListener(v ->
-                startActivity(new Intent(this, AddIncidenciaActivity.class))
-        );
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        cargarDatosAsincronos();
-    }
-
-    private void cargarDatosAsincronos() {
-        executorService.execute(() -> {
-            List<Incidencia> nuevaLista = dao.obtenerTodas();
-            mainHandler.post(() -> {
-                listaIncidencias.clear();
-                listaIncidencias.addAll(nuevaLista);
-                adapter.notifyDataSetChanged();
-                tvHeader.setText("INCIDENCIAS (" + nuevaLista.size() + ")");
-            });
-        });
     }
 
     @Override

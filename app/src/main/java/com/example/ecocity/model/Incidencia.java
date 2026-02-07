@@ -4,12 +4,17 @@ import com.google.firebase.firestore.Exclude;
 
 public class Incidencia {
     private int id; // Usado para SQLite
+    private String firebaseId;
     private String titulo, descripcion, fotoRuta;
     private int importancia;
     private double latitud, longitud;
+    private long timestamp;
+    public long getTimestamp() { return timestamp; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 
     // CONSTRUCTOR VACÍO: Obligatorio para Firebase Firestore
     public Incidencia() {}
+
 
     public Incidencia(String titulo, String descripcion, int importancia, String fotoRuta, double latitud, double longitud) {
         this.titulo = titulo;
@@ -24,6 +29,8 @@ public class Incidencia {
     @Exclude // Evita que el ID de SQLite se suba a Firebase si prefieres usar el ID de la nube
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+    public String getFirebaseId() { return firebaseId; }
+    public void setFirebaseId(String firebaseId) { this.firebaseId = firebaseId; }
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
