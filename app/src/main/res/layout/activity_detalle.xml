@@ -53,8 +53,28 @@
                     android:layout_marginTop="8dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
+                    android:textColor="@color/black"
                     android:textSize="14sp"
                     android:textStyle="italic" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/description"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDetalleDescripcion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
 
             </LinearLayout>
 
@@ -80,18 +100,6 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/description"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvDetalleDescripcion"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="16sp" />
         </LinearLayout>
     </ScrollView>
 
