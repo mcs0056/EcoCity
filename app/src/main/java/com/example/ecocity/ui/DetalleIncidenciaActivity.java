@@ -1,13 +1,17 @@
 package com.example.ecocity.ui;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.ecocity.R;
+import com.example.ecocity.model.Incidencia;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,7 +25,7 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
 
     private double latitud, longitud;
     private String titulo;
-
+    private String EXTRA_ID_INCIDENCIA = "ID_INCIDENCIA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,14 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         String desc = getIntent().getStringExtra("descripcion");
         int importancia = getIntent().getIntExtra("importancia", 0);
         String ruta = getIntent().getStringExtra("rutaFoto");
+        int idIncidencia = getIntent().getIntExtra(EXTRA_ID_INCIDENCIA, -1);
+        Log.d("DetalleIncidencia", "ID de la incidencia recibido: " + idIncidencia);
+        if(idIncidencia == -1){
+            Log.d("DetalleIncidencia", "No se recibió ID válido. Cerrando Activity.");
+            finish();
+            return;
+        }
+
 
         // RECUPERAR COORDENADAS (Asegúrate de enviarlas desde el Adapter)
         latitud = getIntent().getDoubleExtra("latitud", 0);
@@ -81,6 +93,14 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+
+        Button btnChat = findViewById(R.id.btnChatIncidencia);
+        btnChat.setOnClickListener(v -> {
+            Log.d("DetalleIncidencia", "Botón CHAT pulsado, idIncidencia: " + idIncidencia);
+            Intent intent = new Intent(this, ChatIncidenciaActivity.class);
+            intent.putExtra(EXTRA_ID_INCIDENCIA, idIncidencia);
+            startActivity(intent);
+        });
     }
 
     @Override
@@ -104,5 +124,4 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         finish();
         return true;
     }
-
 }
