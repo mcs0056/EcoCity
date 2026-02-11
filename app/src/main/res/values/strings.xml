@@ -12,10 +12,15 @@
     <string name="ubicacion">Seleccionar ubicación</string>
     <string name="picture">HACER FOTO</string>
     <string name="guardar">Guardar</string>
+    <!-- activity_chat_incidencia.xml -->
+    <string name="chatIncidencia">Incidencia</string>
+    <string name="escribeMensaje">Escribe un mensaje...</string>
+    <string name="enviar">Enviar</string>
     <!-- activity_detalle.xml -->
     <string name="back">Volver</string>
     <string name="photo">Foto de la incidencia</string>
     <string name="location">Ubicación de la incidencia:</string>
+    <string name="chat">CHAT</string>
     <!-- activity_login.xml -->
     <string name="acceso">ACCESO</string>
     <string name="user">Usuario</string>

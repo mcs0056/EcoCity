@@ -46,6 +46,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation libs.activity
     implementation 'androidx.annotation:annotation:1.7.0'
+    implementation libs.firebase.database
 
 
     testImplementation 'junit:junit:4.13.2'

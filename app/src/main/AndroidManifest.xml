@@ -39,9 +39,7 @@
         <activity
             android:name=".ui.MapsActivity"
             android:exported="false"
-            android:label="@string/title_activity_maps" />
-
-        <!-- LOGIN (Pantalla inicial) -->
+            android:label="@string/title_activity_maps" /> <!-- LOGIN (Pantalla inicial) -->
         <activity
             android:name=".ui.LoginActivity"
             android:exported="true">
@@ -51,27 +49,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <!-- LISTADO DE INCIDENCIAS -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="false" />
-
         <!-- ALTA INCIDENCIA -->
         <activity
             android:name=".ui.AddIncidenciaActivity"
             android:exported="false" />
-
         <!-- REGISTRO INCIDENCIAS -->
         <activity android:name=".ui.DetalleIncidenciaActivity" />
-
         <!-- REGISTRAR CUENTA -->
         <activity
             android:name=".ui.RegistroActivity"
             android:exported="false" />
-
         <!-- SOPORTE TÉCNICO -->
-        <activity android:name=".ui.SoporteActivity"
+        <activity
+            android:name=".ui.SoporteActivity"
+            android:exported="true" />
+        <!-- CHAT DE INCIDENCIA -->
+        <activity
+            android:name=".ui.ChatIncidenciaActivity"
             android:exported="true" />
 
         <provider
