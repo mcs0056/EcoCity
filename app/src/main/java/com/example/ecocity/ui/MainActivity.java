@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Listeners
         fabAdd.setOnClickListener(v -> startActivity(new Intent(this, AddIncidenciaActivity.class)));
-        fabQuestion.setOnClickListener(v -> { /* Ayuda */ });
+        fabQuestion.setOnClickListener(v -> startActivity(new Intent(this, SoporteActivity.class)));
 
         setupSwipeToDelete();
     }
