@@ -5,7 +5,6 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,14 +12,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ecocity.R;
 import com.example.ecocity.adapter.ChatIncidenciaAdapter;
 import com.example.ecocity.model.MensajeIncidencia;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.DocumentChange;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatIncidenciaActivity extends AppCompatActivity {
 
@@ -32,11 +36,13 @@ public class ChatIncidenciaActivity extends AppCompatActivity {
     private List<MensajeIncidencia> mensajes;
     private ChatIncidenciaAdapter chatIncidenciaAdapter;
 
-    private int idIncidencia;
+    private String idIncidencia;
     private final String EXTRA_ID_INCIDENCIA = "ID_INCIDENCIA";
-    private final int idUsuarioActual = 1; // Usuario simulado
+    private final int idUsuarioActual = FirebaseAuth.getInstance().getCurrentUser().getUid().hashCode(); // Usuario simulado
 
-    private DatabaseReference chatRef;
+    private FirebaseFirestore db;
+    private CollectionReference chatRef;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,66 +65,79 @@ public class ChatIncidenciaActivity extends AppCompatActivity {
         rvChat.setAdapter(chatIncidenciaAdapter);
 
         // ---- ID DE INCIDENCIA ----
-        idIncidencia = getIntent().getIntExtra(EXTRA_ID_INCIDENCIA, -1);
-        Log.d("ChatIncidencia", "ID de la incidencia recibido: " + idIncidencia);
-        if (idIncidencia == -1) {
+        idIncidencia = getIntent().getStringExtra(EXTRA_ID_INCIDENCIA);
+        if (idIncidencia == null) {
             Log.d("ChatIncidencia", "No se recibió ID válido. Cerrando Activity.");
             finish();
             return;
         }
 
         // ---- FIREBASE REFERENCE ----
-        chatRef = FirebaseDatabase.getInstance()
-                .getReference("chats")
-                .child(String.valueOf(idIncidencia));
+        db = FirebaseFirestore.getInstance();
+        chatRef = db.collection("incidencias")
+                .document(idIncidencia)
+                .collection("mensajes");
 
         // ---- ESCUCHA DE MENSAJES EN TIEMPO REAL ----
-        chatRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
-                MensajeIncidencia mensaje = snapshot.getValue(MensajeIncidencia.class);
-                if (mensaje != null) {
-                    // Marcar si es mensaje propio o de otro usuario
-                    mensaje = new MensajeIncidencia(
-                            mensaje.getIdIncidencia(),
-                            mensaje.getIdUsuario(),
-                            mensaje.getTexto(),
-                            mensaje.getIdUsuario() == idUsuarioActual,
-                            mensaje.getTimestamp()
-                    );
-                    mensajes.add(mensaje);
-                    chatIncidenciaAdapter.notifyItemInserted(mensajes.size() - 1);
-                    rvChat.scrollToPosition(mensajes.size() - 1); // Scroll automático
-                }
-            }
+        chatRef.orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener(( snapshots, e)-> {
+                    if(e != null){
+                        Log.e("ChatIncidencia", "Error al escuchar mensajes", e);
+                        return;
+                    }
 
-            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {}
-            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {}
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
+                    if(snapshots == null){
+                        return;
+                    }
+
+                    mensajes.clear();
+
+                    for(DocumentSnapshot doc : snapshots.getDocuments()){
+                        String texto = doc.getString("texto");
+                        Long idUserLong = doc.getLong("idUsuario");
+                        int idUsuario = idUserLong != null ? idUserLong.intValue() : 0;
+
+                        long timestamp = 0;
+                        if(doc.getTimestamp("timestamp") != null){
+                            timestamp = doc.getTimestamp("timestamp")
+                                    .toDate()
+                                    .getTime();
+                        }
+
+                        boolean esPropio = idUsuario == idUsuarioActual;
+
+                        mensajes.add(new MensajeIncidencia(
+                                idIncidencia,
+                                idUsuario,
+                                texto,
+                                esPropio,
+                                timestamp
+                        ));
+                    }
+                    chatIncidenciaAdapter.notifyDataSetChanged();
+                    if(!mensajes.isEmpty()){
+                        rvChat.scrollToPosition(mensajes.size() - 1);
+                    }
+                });
 
         // ---- BOTÓN ENVIAR ----
         btnEnviar.setOnClickListener(v -> {
             String texto = etMensaje.getText().toString().trim();
             if (!texto.isEmpty()) {
-                long timestamp = System.currentTimeMillis();
-                MensajeIncidencia mensaje = new MensajeIncidencia(
-                        idIncidencia,
-                        idUsuarioActual,
-                        texto,
-                        true,
-                        timestamp
-                );
+                Map<String, Object> mensaje = new HashMap<>();
+                mensaje.put("idIncidencia", idIncidencia);
+                mensaje.put("idUsuario", idUsuarioActual);
+                mensaje.put("texto", texto);
+                mensaje.put("timestamp", FieldValue.serverTimestamp());
 
-                // Guardar en Firebase (realtime)
-                chatRef.push().setValue(mensaje);
+                chatRef.add(mensaje)
+                        .addOnSuccessListener(aVoid -> Log.d("Chat", "Mensaje enviado correctamente"))
+                        .addOnFailureListener(e -> Log.e("Chat", "Error al enviar mensaje", e));
 
                 // Limpiar EditText
                 etMensaje.setText("");
             }
         });
-
         Log.d("ChatIncidencia", "onCreate: Chat iniciado correctamente.");
     }
 }

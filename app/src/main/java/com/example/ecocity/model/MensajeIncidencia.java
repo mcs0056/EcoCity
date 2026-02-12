@@ -2,7 +2,7 @@ package com.example.ecocity.model;
 
 public class MensajeIncidencia {
 
-    private int idIncidencia;
+    private String idIncidencia;
     private int idUsuario;
     private String texto;
     private boolean esPropio;
@@ -10,7 +10,7 @@ public class MensajeIncidencia {
 
     public MensajeIncidencia(){} //Construtor vacío
 
-    public MensajeIncidencia(int idIncidencia, int idUsuario, String texto, boolean esPropio, long timestamp){
+    public MensajeIncidencia(String idIncidencia, int idUsuario, String texto, boolean esPropio, long timestamp){
         this.idIncidencia = idIncidencia;
         this.idUsuario = idUsuario;
         this.texto = texto;
@@ -19,7 +19,7 @@ public class MensajeIncidencia {
     }
 
     //Getters
-    public int getIdIncidencia(){return idIncidencia;}
+    public String getIdIncidencia(){return idIncidencia;}
 
     public int getIdUsuario(){return idUsuario;}
 

@@ -68,7 +68,7 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
         // CLIC PARA ABRIR DETALLE
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetalleIncidenciaActivity.class);
-            intent.putExtra(EXTRA_ID_INCIDENCIA, i.getId());
+            intent.putExtra(EXTRA_ID_INCIDENCIA, i.getFirebaseId());
             intent.putExtra("titulo", i.getTitulo());
             intent.putExtra("descripcion", i.getDescripcion());
             intent.putExtra("importancia", i.getImportancia());
