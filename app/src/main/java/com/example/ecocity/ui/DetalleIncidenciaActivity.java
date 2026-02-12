@@ -32,14 +32,14 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle);
 
-        //Botón flecha para volver
+        // Botón flecha para volver
         ImageButton btnVolver = findViewById(R.id.btnVolver);
         btnVolver.setOnClickListener(v -> finish());
 
         ImageView ivFoto = findViewById(R.id.ivDetalleFoto);
         TextView tvTitulo = findViewById(R.id.tvDetalleTitulo);
-        TextView tvImportancia = findViewById(R.id.tvDetalleImportancia);
         TextView tvDescripcion = findViewById(R.id.tvDetalleDescripcion);
+        TextView tvDetalleFecha = findViewById(R.id.tvDetalleFecha);
 
         // Recuperamos los datos del Intent
         titulo = getIntent().getStringExtra("titulo");
@@ -48,43 +48,53 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         String ruta = getIntent().getStringExtra("rutaFoto");
         String idIncidencia = getIntent().getStringExtra(EXTRA_ID_INCIDENCIA);
         Log.d("DetalleIncidencia", "ID de la incidencia recibido: " + idIncidencia);
-        if(idIncidencia == null){
+        if (idIncidencia == null) {
             Log.d("DetalleIncidencia", "No se recibió ID válido. Cerrando Activity.");
             finish();
             return;
         }
 
-
         // RECUPERAR COORDENADAS (Asegúrate de enviarlas desde el Adapter)
         latitud = getIntent().getDoubleExtra("latitud", 0);
         longitud = getIntent().getDoubleExtra("longitud", 0);
 
-        LinearLayout layoutTituloImportancia = findViewById(R.id.layoutTituloImportancia);
-
-        int colorFondo;
-        switch (importancia){
+        // Configurar color del titulo segun importancia
+        int colorTitulo;
+        switch (importancia) {
             case 0:
-            colorFondo = getColor(R.color.importancia_baja);
-            break;
+                colorTitulo = getColor(R.color.importancia_baja);
+                break;
             case 1:
-                colorFondo = getColor(R.color.importancia_media);
+                colorTitulo = getColor(R.color.importancia_media);
                 break;
             case 2:
-                colorFondo = getColor(R.color.importancia_alta);
+                // Aseguramos que sea ROJO para alta importancia
+                colorTitulo = getColor(R.color.importancia_alta);
                 break;
             default:
-                colorFondo = getColor(android.R.color.white);
+                colorTitulo = getColor(android.R.color.black);
         }
-        layoutTituloImportancia.setBackgroundColor(colorFondo);
+        tvTitulo.setTextColor(colorTitulo);
 
         // Asignamos valores de texto e imagen
         tvTitulo.setText(titulo);
         tvDescripcion.setText(desc);
-        String[] niveles = {"Baja", "Media", "Alta"};
-        tvImportancia.setText("Prioridad: " + niveles[importancia]);
+
+        // Mostrar fecha
+        long timestamp = getIntent().getLongExtra("timestamp", 0);
+        if (timestamp > 0) {
+            java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(this);
+            tvDetalleFecha.setText(dateFormat.format(new java.util.Date(timestamp)));
+            tvDetalleFecha.setVisibility(android.view.View.VISIBLE);
+        } else {
+            tvDetalleFecha.setVisibility(android.view.View.GONE);
+        }
 
         if (ruta != null && !ruta.isEmpty()) {
-            ivFoto.setImageURI(Uri.fromFile(new File(ruta)));
+            com.bumptech.glide.Glide.with(this)
+                    .load(ruta)
+                    .error(R.drawable.ic_broken_image)
+                    .into(ivFoto);
         }
 
         // INICIALIZAR EL MAPA
@@ -94,11 +104,13 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
             mapFragment.getMapAsync(this);
         }
 
-        Button btnChat = findViewById(R.id.btnChatIncidencia);
+        ImageButton btnChat = findViewById(R.id.btnChatIncidencia);
         btnChat.setOnClickListener(v -> {
             Log.d("DetalleIncidencia", "Botón CHAT pulsado, idIncidencia: " + idIncidencia);
             Intent intent = new Intent(this, ChatIncidenciaActivity.class);
             intent.putExtra(EXTRA_ID_INCIDENCIA, idIncidencia);
+            intent.putExtra("titulo", titulo);
+            intent.putExtra("rutaFoto", ruta);
             startActivity(intent);
         });
     }
@@ -114,13 +126,11 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
                 .title(titulo));
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacionIncidencia, 15f));
-
-        // Deshabilitar gestos si solo quieres que sea una vista estática
         googleMap.getUiSettings().setScrollGesturesEnabled(false);
     }
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }

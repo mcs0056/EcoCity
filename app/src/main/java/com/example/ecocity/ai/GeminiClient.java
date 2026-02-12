@@ -16,21 +16,21 @@ import okhttp3.Response;
 
 public class GeminiClient {
 
-    private static final String TAG  = "GeminiClient";
+    private static final String TAG = "GeminiClient";
     private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent";
     private final String apiKey;
     private final OkHttpClient client;
     private final Gson gson;
 
-    public GeminiClient(String apiKey){
+    public GeminiClient(String apiKey) {
         this.apiKey = apiKey;
         this.client = new OkHttpClient();
         this.gson = new Gson();
     }
 
-    public String enviarPregunta(String pregunta){
-        try{
-            //Construimos el JSON
+    public String enviarPregunta(String pregunta) {
+        try {
+            // Construimos el JSON
 
             JsonObject textPart = new JsonObject();
             textPart.addProperty("text", pregunta);
@@ -41,7 +41,7 @@ public class GeminiClient {
             JsonObject contentObject = new JsonObject();
             contentObject.add("parts", partsArray);
 
-            JsonArray contentsArray  = new JsonArray();
+            JsonArray contentsArray = new JsonArray();
             contentsArray.add(contentObject);
 
             JsonObject bodyJson = new JsonObject();
@@ -50,28 +50,31 @@ public class GeminiClient {
             MediaType JSON = MediaType.get("application/json; charset=utf-8");
             RequestBody body = RequestBody.create(bodyJson.toString(), JSON);
 
-            //Construimos la request
+            // Construimos la request
             Request request = new Request.Builder()
                     .url(BASE_URL + "?key=" + apiKey)
                     .post(body)
                     .build();
 
-            //Ejecutamos
+            // Ejecutamos
             Response response = client.newCall(request).execute();
             String responseBody = response.body().string();
 
             Log.d(TAG, "Respuesta completa Gemini: " + responseBody);
 
-            if(!response.isSuccessful()){
-                Log.e(TAG, "Error API: " + response.code());
+            if (!response.isSuccessful()) {
+                Log.e(TAG, "Error API: " + response.code() + " - " + response.message());
+                if (response.code() == 429) {
+                    return "Error API: 429. Se ha excedido la cuota de uso de la API. Por favor, intenta más tarde o verifica tu plan.";
+                }
                 return "Error API: " + response.code();
             }
 
-            //Parseamos la respuesta
+            // Parseamos la respuesta
             JsonObject json = gson.fromJson(responseBody, JsonObject.class);
 
-            //Extreamos el contenido esperado
-            if(json.has("candidates")){
+            // Extreamos el contenido esperado
+            if (json.has("candidates")) {
                 JsonObject candidate = json
                         .getAsJsonArray("candidates")
                         .get(0).getAsJsonObject();
@@ -87,7 +90,7 @@ public class GeminiClient {
             }
             return "No se pudo generar respuesta";
 
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return "Error al comunicarse con la IA";
         }

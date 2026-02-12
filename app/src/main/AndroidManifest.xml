@@ -72,6 +72,7 @@
         <!-- CHAT DE INCIDENCIA -->
         <activity
             android:name=".ui.ChatIncidenciaActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
             android:exported="true" />
 
         <provider

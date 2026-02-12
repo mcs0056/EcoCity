@@ -26,6 +26,7 @@ public class IncidenciaDAO {
         values.put("foto_ruta", i.getFotoRuta());
         values.put("latitud", i.getLatitud());
         values.put("longitud", i.getLongitud());
+        values.put("timestamp", i.getTimestamp());
 
         db.insert("incidencias", null, values);
         db.close();
@@ -46,6 +47,12 @@ public class IncidenciaDAO {
                 i.setFotoRuta(c.getString(c.getColumnIndexOrThrow("foto_ruta")));
                 i.setLatitud(c.getDouble(c.getColumnIndexOrThrow("latitud")));
                 i.setLongitud(c.getDouble(c.getColumnIndexOrThrow("longitud")));
+                // Try catch for safe reading if column missing (though update guarantees it)
+                try {
+                    i.setTimestamp(c.getLong(c.getColumnIndexOrThrow("timestamp")));
+                } catch (IllegalArgumentException e) {
+                    // Column missing
+                }
 
                 lista.add(i);
             } while (c.moveToNext());
@@ -58,7 +65,7 @@ public class IncidenciaDAO {
 
     public void eliminar(int id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("incidencias", "id=?", new String[]{String.valueOf(id)});
+        db.delete("incidencias", "id=?", new String[] { String.valueOf(id) });
         db.close();
     }
 }

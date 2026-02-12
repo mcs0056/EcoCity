@@ -32,12 +32,22 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView rv;
     private IncidenciaAdapter adapter;
-    private List<Incidencia> listaIncidencias;
+    // Removed duplicate list declarations to avoid confusion, Adapter manages data
+    // now
     private IncidenciaDAO dao;
     private TextView tvHeader;
+    private android.widget.EditText etBusqueda;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    // Comparadores
+    java.util.Comparator<Incidencia> sortFechaAsc = (i1, i2) -> Long.compare(i1.getTimestamp(), i2.getTimestamp());
+    java.util.Comparator<Incidencia> sortFechaDesc = (i1, i2) -> Long.compare(i2.getTimestamp(), i1.getTimestamp());
+    java.util.Comparator<Incidencia> sortImportanciaAsc = (i1, i2) -> Integer.compare(i1.getImportancia(),
+            i2.getImportancia()); // 0->2
+    java.util.Comparator<Incidencia> sortImportanciaDesc = (i1, i2) -> Integer.compare(i2.getImportancia(),
+            i1.getImportancia()); // 2->0
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +57,15 @@ public class MainActivity extends AppCompatActivity {
         dao = new IncidenciaDAO(this);
         rv = findViewById(R.id.rvIncidencias);
         tvHeader = findViewById(R.id.tvHeaderTitle);
+        etBusqueda = findViewById(R.id.etBusqueda);
+        android.widget.ImageButton btnFiltrar = findViewById(R.id.btnFiltrar);
+
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
         FloatingActionButton fabQuestion = findViewById(R.id.fabQuestion);
         android.widget.ImageButton btnLogout = findViewById(R.id.btnLogout);
 
-        listaIncidencias = new ArrayList<>();
-        adapter = new IncidenciaAdapter(this, listaIncidencias);
+        // Inicializar adapter vacío
+        adapter = new IncidenciaAdapter(this, new ArrayList<>());
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
@@ -65,12 +78,60 @@ public class MainActivity extends AppCompatActivity {
             finish();
         });
 
+        // SEARCH LISTENER
+        etBusqueda.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.filtrar(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+
+        // FILTER BUTTON
+        btnFiltrar.setOnClickListener(v -> {
+            android.widget.PopupMenu popup = new android.widget.PopupMenu(MainActivity.this, v);
+
+            // Agregar opciones directamente
+            popup.getMenu().add(0, 1, 0, "Fecha: Más antigua a nueva");
+            popup.getMenu().add(0, 2, 0, "Fecha: Más reciente a antigua");
+            popup.getMenu().add(0, 3, 0, "Importancia: Menor a Mayor");
+            popup.getMenu().add(0, 4, 0, "Importancia: Mayor a Menor");
+
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case 1:
+                        adapter.ordenar(sortFechaAsc);
+                        return true;
+                    case 2:
+                        adapter.ordenar(sortFechaDesc);
+                        return true;
+                    case 3:
+                        adapter.ordenar(sortImportanciaAsc);
+                        return true;
+                    case 4:
+                        adapter.ordenar(sortImportanciaDesc);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            popup.show();
+        });
+
         setupSwipeToDelete();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        // Cargar datos (puede ser local y luego Cloud)
         cargarDatosLocales();
         escucharIncidenciasCloud();
     }
@@ -79,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
         executorService.execute(() -> {
             List<Incidencia> local = dao.obtenerTodas();
             mainHandler.post(() -> {
-                if (listaIncidencias.isEmpty()) {
-                    listaIncidencias.addAll(local);
-                    adapter.notifyDataSetChanged();
+                // Solo cargamos si el adapter está vacío para dar una primera impresión rápida
+                if (adapter.getItemCount() == 0) {
+                    adapter.actualizarLista(local);
                     tvHeader.setText("INCIDENCIAS (" + local.size() + ")");
                 }
             });
@@ -91,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
     private void escucharIncidenciasCloud() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Escuchamos la colección "incidencias"
         db.collection("incidencias")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -101,69 +161,58 @@ public class MainActivity extends AppCompatActivity {
 
                     if (value != null) {
                         List<Incidencia> listaCloud = new ArrayList<>();
-
                         for (DocumentSnapshot doc : value.getDocuments()) {
-                            // 1. Convertimos el documento al objeto Incidencia
                             Incidencia inc = doc.toObject(Incidencia.class);
-
                             if (inc != null) {
-                                // 2. Guardamos el ID del documento (ej: "xjk6ZhquN...")
                                 inc.setFirebaseId(doc.getId());
-
                                 listaCloud.add(inc);
                             }
                         }
 
-                        // 3. Actualizamos la lista y la interfaz
-                        listaIncidencias.clear();
-                        listaIncidencias.addAll(listaCloud);
-                        adapter.notifyDataSetChanged();
+                        // Actualizar ADAPTER
+                        adapter.actualizarLista(listaCloud);
 
-                        // Actualizamos el contador del encabezado
+                        // Re-aplicar filtro si hay texto escrito
+                        String filtroActual = etBusqueda.getText().toString();
+                        if (!filtroActual.isEmpty()) {
+                            adapter.filtrar(filtroActual);
+                        }
+
                         tvHeader.setText("INCIDENCIAS (" + listaCloud.size() + ")");
-
-                        Log.d("ECOCITY_DEBUG", "Sincronizados " + listaCloud.size() + " elementos desde la nube.");
+                        Log.d("ECOCITY_DEBUG", "Sincronizados " + listaCloud.size() + " elementos.");
                     }
                 });
     }
+
     private void setupSwipeToDelete() {
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                    @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getBindingAdapterPosition();
-                Incidencia aBorrar = listaIncidencias.get(position);
-
-                // Obtenemos el ID de Firebase que guardamos al cargar la lista
+                // Usar método del adapter para obtener el item correcto (filtrado)
+                Incidencia aBorrar = adapter.getItem(position);
                 String idFirestore = aBorrar.getFirebaseId();
 
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Eliminar permanentemente")
                         .setMessage("¿Estás seguro? Se borrará para todos los usuarios.")
                         .setPositiveButton("Sí", (dialog, which) -> {
-
-                            // 1. Borrar de Firestore (Nube)
                             if (idFirestore != null) {
                                 FirebaseFirestore.getInstance().collection("incidencias")
                                         .document(idFirestore)
                                         .delete()
-                                        .addOnSuccessListener(aVoid -> Log.d("Cloud", "Incidencia borrada"))
-                                        .addOnFailureListener(e -> Log.e("Cloud", "Error al borrar", e));
+                                        .addOnSuccessListener(aVoid -> Log.d("Cloud", "Incidencia borrada"));
                             }
-
-                            // 2. Borrar de SQLite (Local)
-                            executorService.execute(() -> {
-                                dao.eliminar(aBorrar.getId());
-                                mainHandler.post(() -> {
-                                    // No hace falta hacer mucho más, el SnapshotListener
-                                    // quitará la tarjeta automáticamente al detectar el borrado.
-                                    Toast.makeText(MainActivity.this, "Incidencia eliminada", Toast.LENGTH_SHORT).show();
-                                });
-                            });
+                            // SQLite Local
+                            executorService.execute(() -> dao.eliminar(aBorrar.getId()));
+                            Toast.makeText(MainActivity.this, "Incidencia eliminada", Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton("No", (dialog, which) -> {
                             adapter.notifyItemChanged(position);

@@ -23,13 +23,45 @@ import java.util.List;
 
 public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.ViewHolder> {
 
-    public List<Incidencia> lista;
-    private IncidenciaDAO dao;
-    private String EXTRA_ID_INCIDENCIA = "ID_INCIDENCIA";
+    // Lista completa de datos (para no perder al filtrar)
+    private List<Incidencia> listaOriginal;
+    // Lista que se muestra en pantalla (filtrada/ordenada)
+    private List<Incidencia> listaFiltrada;
+    private Context context;
 
     public IncidenciaAdapter(Context context, List<Incidencia> lista) {
-        this.lista = lista;
-        this.dao = new IncidenciaDAO(context);
+        this.context = context;
+        this.listaOriginal = new java.util.ArrayList<>(lista);
+        this.listaFiltrada = new java.util.ArrayList<>(lista);
+    }
+
+    // Método para actualizar datos desde Firebase
+    public void actualizarLista(List<Incidencia> nuevaLista) {
+        this.listaOriginal = new java.util.ArrayList<>(nuevaLista);
+        this.listaFiltrada = new java.util.ArrayList<>(nuevaLista);
+        notifyDataSetChanged();
+    }
+
+    // Filtrar por texto (título)
+    public void filtrar(String texto) {
+        listaFiltrada.clear();
+        if (texto.isEmpty()) {
+            listaFiltrada.addAll(listaOriginal);
+        } else {
+            String busqueda = texto.toLowerCase();
+            for (Incidencia i : listaOriginal) {
+                if (i.getTitulo().toLowerCase().contains(busqueda)) {
+                    listaFiltrada.add(i);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    // Ordenar la lista actual
+    public void ordenar(java.util.Comparator<Incidencia> comparador) {
+        java.util.Collections.sort(listaFiltrada, comparador);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -41,16 +73,27 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Incidencia i = lista.get(position);
-        Context context = holder.itemView.getContext();
+        Incidencia i = listaFiltrada.get(position);
 
         holder.titulo.setText(i.getTitulo());
         holder.descripcion.setText(i.getDescripcion());
 
-        // Mostrar imagen en miniatura
+        // Formatear fecha
+        if (i.getTimestamp() > 0) {
+            java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(context);
+            holder.fecha.setText(dateFormat.format(new java.util.Date(i.getTimestamp())));
+            holder.fecha.setVisibility(View.VISIBLE);
+        } else {
+            holder.fecha.setVisibility(View.GONE);
+        }
+
+        // Mostrar imagen en miniatura con Glide
         if (i.getFotoRuta() != null && !i.getFotoRuta().isEmpty()) {
-            holder.imgIncidencia.setImageURI(Uri.fromFile(new File(i.getFotoRuta())));
             holder.imgIncidencia.setVisibility(View.VISIBLE);
+            com.bumptech.glide.Glide.with(context)
+                    .load(i.getFotoRuta())
+                    .error(R.drawable.ic_broken_image)
+                    .into(holder.imgIncidencia);
         } else {
             holder.imgIncidencia.setVisibility(View.GONE);
         }
@@ -58,34 +101,47 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
         // Color según importancia
         int color;
         switch (i.getImportancia()) {
-            case 0: color = context.getColor(R.color.importancia_baja); break;
-            case 1: color = context.getColor(R.color.importancia_media); break;
-            case 2: color = context.getColor(R.color.importancia_alta); break;
-            default: color = Color.WHITE;
+            case 0:
+                color = context.getColor(R.color.importancia_baja);
+                break;
+            case 1:
+                color = context.getColor(R.color.importancia_media);
+                break;
+            case 2:
+                color = context.getColor(R.color.importancia_alta);
+                break;
+            default:
+                color = Color.WHITE;
         }
         holder.cardIncidencia.setCardBackgroundColor(color);
 
         // CLIC PARA ABRIR DETALLE
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetalleIncidenciaActivity.class);
-            intent.putExtra(EXTRA_ID_INCIDENCIA, i.getFirebaseId());
+            intent.putExtra("ID_INCIDENCIA", i.getFirebaseId());
             intent.putExtra("titulo", i.getTitulo());
             intent.putExtra("descripcion", i.getDescripcion());
             intent.putExtra("importancia", i.getImportancia());
             intent.putExtra("rutaFoto", i.getFotoRuta());
             intent.putExtra("latitud", i.getLatitud());
             intent.putExtra("longitud", i.getLongitud());
+            intent.putExtra("timestamp", i.getTimestamp());
             context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return lista.size();
+        return listaFiltrada.size();
+    }
+
+    // Helper para obtener item de la lista filtrada (usado en swipe to delete)
+    public Incidencia getItem(int position) {
+        return listaFiltrada.get(position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titulo, descripcion;
+        TextView titulo, descripcion, fecha;
         CardView cardIncidencia;
         ImageView imgIncidencia;
 
@@ -93,15 +149,9 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
             super(itemView);
             titulo = itemView.findViewById(R.id.tvTitulo);
             descripcion = itemView.findViewById(R.id.tvDescripcion);
+            fecha = itemView.findViewById(R.id.tvFecha);
             cardIncidencia = itemView.findViewById(R.id.cardIncidencia);
             imgIncidencia = itemView.findViewById(R.id.imgIncidencia);
         }
-    }
-
-    public void removeItem(int position){
-        Incidencia i = lista.get(position);
-        if (dao != null) dao.eliminar(i.getId());
-        lista.remove(position);
-        notifyItemRemoved(position);
     }
 }

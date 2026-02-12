@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardIncidencia"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -46,6 +47,15 @@
                 android:maxLines="2"
                 android:textSize="14sp"
                 android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvFecha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:textColor="#555555"
+                tools:text="12/02/2026"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

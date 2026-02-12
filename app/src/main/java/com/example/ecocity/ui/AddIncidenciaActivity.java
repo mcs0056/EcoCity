@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -45,11 +46,11 @@ public class AddIncidenciaActivity extends AppCompatActivity {
     private Button btnGuardar, btnFoto, btnUbicacion;
     private ImageView ivFoto;
 
-    //Variables de estado
+    // Variables de estado
     private String rutaFotoActual = "";
     private double latitud = 0.0, longitud = 0.0;
 
-    //PSP: Gestión de hilos
+    // PSP: Gestión de hilos
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -98,6 +99,7 @@ public class AddIncidenciaActivity extends AppCompatActivity {
 
         // Crear objeto modelo
         Incidencia nueva = new Incidencia(titulo, desc, importancia, rutaFotoActual, latitud, longitud);
+        nueva.setTimestamp(System.currentTimeMillis());
 
         executorService.execute(() -> {
             // Guardar en SQLite (Local)
@@ -120,7 +122,7 @@ public class AddIncidenciaActivity extends AppCompatActivity {
 
     private void pedirPermisoCamara() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 100);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, 100);
         } else {
             abrirCamara();
         }
@@ -157,8 +159,10 @@ public class AddIncidenciaActivity extends AppCompatActivity {
 
         // Resultado de la Cámara
         if (requestCode == 101 && resultCode == RESULT_OK) {
-            if (rutaFotoActual != null) {
-                ivFoto.setImageURI(Uri.parse(rutaFotoActual));
+            String ruta = rutaFotoActual;
+            if (ruta != null) {
+                ivFoto.setImageURI(Uri.parse(ruta));
+                btnFoto.setText("Cambiar Foto");
             }
         }
 
@@ -167,9 +171,17 @@ public class AddIncidenciaActivity extends AppCompatActivity {
             latitud = data.getDoubleExtra("latitud", 0);
             longitud = data.getDoubleExtra("longitud", 0);
 
-            Toast.makeText(this,
-                    "Ubicación recibida: \n" + latitud + ", " + longitud,
-                    Toast.LENGTH_SHORT).show();
+            // Actualizar UI de ubicación
+            TextView tvStatus = findViewById(R.id.tvStatusLocation);
+            ImageView ivStatus = findViewById(R.id.ivStatusLocation);
+
+            tvStatus.setText(
+                    "Ubicación seleccionada: " + String.format(Locale.getDefault(), "%.4f, %.4f", latitud, longitud));
+            tvStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+            ivStatus.setColorFilter(ContextCompat.getColor(this, android.R.color.holo_green_dark));
+            btnUbicacion.setText("Cambiar");
+
+            Toast.makeText(this, "Ubicación guardada", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -1,27 +1,68 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp"
-    android:gravity="end">
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <!-- Burbuja del mensaje -->
+    <!-- Fecha del día (Header) -->
     <TextView
-        android:id="@+id/tvMensaje"
+        android:id="@+id/tvFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_message_right"
-        android:padding="10dp"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
+        android:layout_gravity="center_horizontal"
+        android:background="#DDDDDD"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="4dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="#333333"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:backgroundTint="#EDEDED"
+        android:text="Hoy"/>
 
-    <!-- Avatar a la derecha -->
-    <ImageView
-        android:id="@+id/ivAvatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_user"
-        android:contentDescription="@string/user"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="8dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <!-- Contenedor del mensaje y hora -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_message_right"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tvMensaje"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:maxWidth="260dp"/>
+
+            <TextView
+                android:id="@+id/tvHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:textColor="#DDDDDD"
+                android:textSize="10sp"
+                android:layout_marginTop="2dp"
+                android:text="12:00"/>
+        </LinearLayout>
+
+        <!-- Avatar a la derecha -->
+        <ImageView
+            android:id="@+id/ivAvatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_user"
+            android:contentDescription="@string/user"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 </LinearLayout>

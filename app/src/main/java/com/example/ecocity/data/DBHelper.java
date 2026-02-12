@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "ecocity.db";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -22,7 +22,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "importancia INTEGER," +
                 "foto_ruta TEXT," + // Cambiado a foto_ruta para coincidir con el DAO
                 "latitud REAL," +
-                "longitud REAL)");
+                "longitud REAL," +
+                "timestamp INTEGER)");
     }
 
     @Override

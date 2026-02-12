@@ -38,11 +38,11 @@ public class ChatIncidenciaActivity extends AppCompatActivity {
 
     private String idIncidencia;
     private final String EXTRA_ID_INCIDENCIA = "ID_INCIDENCIA";
-    private final int idUsuarioActual = FirebaseAuth.getInstance().getCurrentUser().getUid().hashCode(); // Usuario simulado
+    private final int idUsuarioActual = FirebaseAuth.getInstance().getCurrentUser().getUid().hashCode(); // Usuario
+                                                                                                         // simulado
 
     private FirebaseFirestore db;
     private CollectionReference chatRef;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +54,26 @@ public class ChatIncidenciaActivity extends AppCompatActivity {
         etMensaje = findViewById(R.id.etMensaje);
         btnEnviar = findViewById(R.id.btnEnviar);
         btnVolver = findViewById(R.id.btnVolver);
+        android.widget.ImageView ivHeader = findViewById(R.id.ivHeaderIncidencia);
+        android.widget.TextView tvTitle = findViewById(R.id.tvHeaderTitle);
 
         // Botón para volver a la pantalla anterior
         btnVolver.setOnClickListener(v -> finish());
+
+        // Cargar datos de la incidencia (Titulo y Foto)
+        String titulo = getIntent().getStringExtra("titulo");
+        String rutaFoto = getIntent().getStringExtra("rutaFoto");
+
+        if (titulo != null) {
+            tvTitle.setText(titulo);
+        }
+
+        if (rutaFoto != null && !rutaFoto.isEmpty()) {
+            com.bumptech.glide.Glide.with(this)
+                    .load(rutaFoto)
+                    .error(R.drawable.ic_broken_image)
+                    .into(ivHeader);
+        }
 
         // Configuración del RecyclerView
         rvChat.setLayoutManager(new LinearLayoutManager(this));
@@ -80,25 +97,25 @@ public class ChatIncidenciaActivity extends AppCompatActivity {
 
         // ---- ESCUCHA DE MENSAJES EN TIEMPO REAL ----
         chatRef.orderBy("timestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener(( snapshots, e)-> {
-                    if(e != null){
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
                         Log.e("ChatIncidencia", "Error al escuchar mensajes", e);
                         return;
                     }
 
-                    if(snapshots == null){
+                    if (snapshots == null) {
                         return;
                     }
 
                     mensajes.clear();
 
-                    for(DocumentSnapshot doc : snapshots.getDocuments()){
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         String texto = doc.getString("texto");
                         Long idUserLong = doc.getLong("idUsuario");
                         int idUsuario = idUserLong != null ? idUserLong.intValue() : 0;
 
                         long timestamp = 0;
-                        if(doc.getTimestamp("timestamp") != null){
+                        if (doc.getTimestamp("timestamp") != null) {
                             timestamp = doc.getTimestamp("timestamp")
                                     .toDate()
                                     .getTime();
@@ -111,11 +128,10 @@ public class ChatIncidenciaActivity extends AppCompatActivity {
                                 idUsuario,
                                 texto,
                                 esPropio,
-                                timestamp
-                        ));
+                                timestamp));
                     }
                     chatIncidenciaAdapter.notifyDataSetChanged();
-                    if(!mensajes.isEmpty()){
+                    if (!mensajes.isEmpty()) {
                         rvChat.scrollToPosition(mensajes.size() - 1);
                     }
                 });
