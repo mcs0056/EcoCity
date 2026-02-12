@@ -46,9 +46,9 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         String desc = getIntent().getStringExtra("descripcion");
         int importancia = getIntent().getIntExtra("importancia", 0);
         String ruta = getIntent().getStringExtra("rutaFoto");
-        int idIncidencia = getIntent().getIntExtra(EXTRA_ID_INCIDENCIA, -1);
+        String idIncidencia = getIntent().getStringExtra(EXTRA_ID_INCIDENCIA);
         Log.d("DetalleIncidencia", "ID de la incidencia recibido: " + idIncidencia);
-        if(idIncidencia == -1){
+        if(idIncidencia == null){
             Log.d("DetalleIncidencia", "No se recibió ID válido. Cerrando Activity.");
             finish();
             return;
