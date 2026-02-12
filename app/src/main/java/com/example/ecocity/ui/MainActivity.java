@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         tvHeader = findViewById(R.id.tvHeaderTitle);
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
         FloatingActionButton fabQuestion = findViewById(R.id.fabQuestion);
+        android.widget.ImageButton btnLogout = findViewById(R.id.btnLogout);
 
         listaIncidencias = new ArrayList<>();
         adapter = new IncidenciaAdapter(this, listaIncidencias);
@@ -58,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
         // Listeners
         fabAdd.setOnClickListener(v -> startActivity(new Intent(this, AddIncidenciaActivity.class)));
         fabQuestion.setOnClickListener(v -> startActivity(new Intent(this, SoporteActivity.class)));
+        btnLogout.setOnClickListener(v -> {
+            com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        });
 
         setupSwipeToDelete();
     }
