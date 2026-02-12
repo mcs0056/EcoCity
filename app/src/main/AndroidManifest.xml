@@ -4,13 +4,13 @@
     package="com.example.ecocity">
 
     <uses-permission android:name="android.permission.CAMERA" />
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -39,7 +39,8 @@
         <activity
             android:name=".ui.MapsActivity"
             android:exported="false"
-            android:label="@string/title_activity_maps" /> <!-- LOGIN (Pantalla inicial) -->
+            android:label="@string/title_activity_maps" />
+        <!-- LOGIN (Pantalla inicial) -->
         <activity
             android:name=".ui.LoginActivity"
             android:exported="true">
@@ -66,6 +67,7 @@
         <!-- SOPORTE TÉCNICO -->
         <activity
             android:name=".ui.SoporteActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
             android:exported="true" />
         <!-- CHAT DE INCIDENCIA -->
         <activity

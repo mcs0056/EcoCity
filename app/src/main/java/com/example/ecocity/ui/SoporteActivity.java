@@ -1,11 +1,8 @@
 package com.example.ecocity.ui;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.ecocity.adapter.ChatAdapter;
@@ -13,7 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ecocity.R;
+import com.example.ecocity.ai.GeminiClient;
 import com.example.ecocity.model.Mensaje;
+import com.example.ecocity.data.FirebaseIncidenciaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +20,13 @@ import java.util.List;
 public class SoporteActivity extends AppCompatActivity {
 
     private RecyclerView rvChat;
-    private Button btnProblema, btnConsulta, btnOtro;
     private ImageButton btnVolver;
-    private LinearLayout layoutOpciones;
+    private EditText etMensaje;
+    private ImageButton btnEnviar;
     private List<Mensaje> mensajes;
     private ChatAdapter chatAdapter;
+    private GeminiClient gemini;
+    private FirebaseIncidenciaRepository repository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +34,8 @@ public class SoporteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_soporte);
 
         rvChat = findViewById(R.id.rvChat);
-        Button btnProblema  = findViewById(R.id.btnProblema);
-        Button btnConsulta = findViewById(R.id.btnConsulta);
-        Button btnOtro = findViewById(R.id.btnOtro);
-        btnVolver = findViewById(R.id.btnVolver);
-        layoutOpciones = findViewById(R.id.layoutOpciones);
+        etMensaje = findViewById(R.id.etMensaje);
+        btnEnviar = findViewById(R.id.btnEnviar);
 
         mensajes = new ArrayList<>();
         chatAdapter = new ChatAdapter(mensajes);
@@ -47,28 +45,49 @@ public class SoporteActivity extends AppCompatActivity {
 
         aniadirMensaje("Hola, soy EcoBot, ¿en qué puedo ayudarte?", true);
 
-        //Listeners para los botones
-        btnProblema.setOnClickListener(v -> {
-            aniadirMensaje(getString(R.string.technical), false);
-            aniadirMensaje("Vale, no desesperes. Enseguida un técnico se pondrá en contacto con usted.", true);
-            layoutOpciones.setVisibility(View.GONE);
-        });
+        //Cliente Gemini
+        gemini = new GeminiClient("AIzaSyBivR1D_ixHQn3Y2mU5sWiJPn19Y-J9j78");
 
-        btnConsulta.setOnClickListener(v -> {
-            aniadirMensaje(getString(R.string.consult), false);
-            aniadirMensaje("Perfecto, te conecto con un operario que te pueda ayudar.", true);
-            layoutOpciones.setVisibility(View.GONE);
-        });
-
-        btnOtro.setOnClickListener(v -> {
-            aniadirMensaje(getString(R.string.another), false);
-            aniadirMensaje("De acuerdo, ¿podrías especificar tu caso con más detalle?", true);
-            layoutOpciones.setVisibility(View.GONE);
-        });
+        //Repositorio Firebase
+        repository = new FirebaseIncidenciaRepository();
 
         //Botón para volver a MainActivity
+        btnVolver = findViewById(R.id.btnVolver);
         btnVolver.setOnClickListener(v ->{
             finish();
+        });
+
+        //Botón enviar
+        btnEnviar.setOnClickListener(v -> {
+            String textoUsuario = etMensaje.getText().toString().trim();
+            if(!textoUsuario.isEmpty()){
+                //Mostrar mensaje del usuario
+                aniadirMensaje(textoUsuario, false);
+                etMensaje.setText("");
+
+                repository.obtenerContextoIncidencias(contexto ->{
+                    new Thread(()->{
+                        try {
+                            String promptFinal =
+                                    "Eres EcoBot, asistente oficial  de la app EcoCity.\n" +
+                                    "Responde usando los datos proporcionados.\n\n" +
+                                    contexto +
+                                    "Pregunta del usuario: " + textoUsuario;
+
+                            String respuestaIA = gemini.enviarPregunta(promptFinal);
+
+                            runOnUiThread(() ->
+                                aniadirMensaje(respuestaIA, true)
+                            );
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            runOnUiThread(()->
+                                    aniadirMensaje("Error al comunicarse con la IA", true)
+                            );
+                        }
+                    }).start();
+                });
+            }
         });
     }
 
@@ -76,19 +95,5 @@ public class SoporteActivity extends AppCompatActivity {
         mensajes.add(new Mensaje(texto, esBot));
         chatAdapter.notifyItemInserted(mensajes.size() - 1);
         rvChat.scrollToPosition(mensajes.size() - 1);
-    }
-
-    private void agregarOpcionesRapidas(String[] opciones){
-        layoutOpciones.removeAllViews();
-
-        for(String opcion : opciones){
-            Button btnOpcion = new Button(this);
-            btnOpcion.setText(opcion);
-            btnOpcion.setOnClickListener(v ->{
-                aniadirMensaje(opcion, false);
-                aniadirMensaje("EcoBot: Has elegido \"" + opcion + "\"", true);
-            });
-            layoutOpciones.addView(btnOpcion);
-        }
     }
 }
