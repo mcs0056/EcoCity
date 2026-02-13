@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private IncidenciaDAO dao;
     private TextView tvHeader;
     private android.widget.EditText etBusqueda;
+    private android.view.View layoutEmptyState;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         rv = findViewById(R.id.rvIncidencias);
         tvHeader = findViewById(R.id.tvHeaderTitle);
         etBusqueda = findViewById(R.id.etBusqueda);
+        layoutEmptyState = findViewById(R.id.layoutEmptyState);
         android.widget.ImageButton btnFiltrar = findViewById(R.id.btnFiltrar);
 
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
@@ -68,6 +70,27 @@ public class MainActivity extends AppCompatActivity {
         adapter = new IncidenciaAdapter(this, new ArrayList<>());
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
+
+        // Observer para mostrar/ocultar Empty State
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                actualizarVistaVacia();
+            }
+
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                actualizarVistaVacia();
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                super.onItemRangeRemoved(positionStart, itemCount);
+                actualizarVistaVacia();
+            }
+        });
 
         // Listeners
         fabAdd.setOnClickListener(v -> startActivity(new Intent(this, AddIncidenciaActivity.class)));
@@ -126,6 +149,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupSwipeToDelete();
+        actualizarVistaVacia();
+    }
+
+    private void actualizarVistaVacia() {
+        if (adapter.getItemCount() == 0) {
+            layoutEmptyState.setVisibility(android.view.View.VISIBLE);
+            rv.setVisibility(android.view.View.GONE);
+        } else {
+            layoutEmptyState.setVisibility(android.view.View.GONE);
+            rv.setVisibility(android.view.View.VISIBLE);
+        }
     }
 
     @Override
