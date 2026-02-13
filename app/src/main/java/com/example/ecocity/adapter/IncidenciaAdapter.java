@@ -87,9 +87,18 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
             holder.fecha.setVisibility(View.GONE);
         }
 
-        // Mostrar imagen en miniatura con Glide
-        if (i.getFotoRuta() != null && !i.getFotoRuta().isEmpty()) {
-            holder.imgIncidencia.setVisibility(View.VISIBLE);
+        // Mostrar imagen (Base64 o Ruta Local)
+        holder.imgIncidencia.setVisibility(View.VISIBLE);
+        if (i.getFotoBase64() != null && !i.getFotoBase64().isEmpty()) {
+            try {
+                byte[] decodedString = android.util.Base64.decode(i.getFotoBase64(), android.util.Base64.DEFAULT);
+                android.graphics.Bitmap decodedByte = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0,
+                        decodedString.length);
+                holder.imgIncidencia.setImageBitmap(decodedByte);
+            } catch (Exception e) {
+                holder.imgIncidencia.setImageResource(R.drawable.ic_broken_image);
+            }
+        } else if (i.getFotoRuta() != null && !i.getFotoRuta().isEmpty()) {
             com.bumptech.glide.Glide.with(context)
                     .load(i.getFotoRuta())
                     .error(R.drawable.ic_broken_image)
@@ -123,6 +132,7 @@ public class IncidenciaAdapter extends RecyclerView.Adapter<IncidenciaAdapter.Vi
             intent.putExtra("descripcion", i.getDescripcion());
             intent.putExtra("importancia", i.getImportancia());
             intent.putExtra("rutaFoto", i.getFotoRuta());
+            intent.putExtra("fotoBase64", i.getFotoBase64()); // NUEVO
             intent.putExtra("latitud", i.getLatitud());
             intent.putExtra("longitud", i.getLongitud());
             intent.putExtra("timestamp", i.getTimestamp());

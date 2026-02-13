@@ -46,6 +46,7 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
         String desc = getIntent().getStringExtra("descripcion");
         int importancia = getIntent().getIntExtra("importancia", 0);
         String ruta = getIntent().getStringExtra("rutaFoto");
+        String fotoBase64 = getIntent().getStringExtra("fotoBase64"); // NUEVO
         String idIncidencia = getIntent().getStringExtra(EXTRA_ID_INCIDENCIA);
         Log.d("DetalleIncidencia", "ID de la incidencia recibido: " + idIncidencia);
         if (idIncidencia == null) {
@@ -90,7 +91,17 @@ public class DetalleIncidenciaActivity extends AppCompatActivity implements OnMa
             tvDetalleFecha.setVisibility(android.view.View.GONE);
         }
 
-        if (ruta != null && !ruta.isEmpty()) {
+        // Mostrar imagen (Base64 o Ruta Local)
+        if (fotoBase64 != null && !fotoBase64.isEmpty()) {
+            try {
+                byte[] decodedString = android.util.Base64.decode(fotoBase64, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap decodedByte = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0,
+                        decodedString.length);
+                ivFoto.setImageBitmap(decodedByte);
+            } catch (Exception e) {
+                ivFoto.setImageResource(R.drawable.ic_broken_image);
+            }
+        } else if (ruta != null && !ruta.isEmpty()) {
             com.bumptech.glide.Glide.with(this)
                     .load(ruta)
                     .error(R.drawable.ic_broken_image)

@@ -97,11 +97,17 @@ public class AddIncidenciaActivity extends AppCompatActivity {
         btnGuardar.setEnabled(false);
         Toast.makeText(this, "Guardando...", Toast.LENGTH_SHORT).show();
 
-        // Crear objeto modelo
-        Incidencia nueva = new Incidencia(titulo, desc, importancia, rutaFotoActual, latitud, longitud);
-        nueva.setTimestamp(System.currentTimeMillis());
-
         executorService.execute(() -> {
+            Incidencia nueva = new Incidencia(titulo, desc, importancia, rutaFotoActual, latitud, longitud);
+            nueva.setTimestamp(System.currentTimeMillis());
+
+            // --- PROCESAR IMAGEN A BASE64 SI EXISTE ---
+            if (rutaFotoActual != null && !rutaFotoActual.isEmpty()) {
+                String base64 = codificarImagenBase64(rutaFotoActual);
+                nueva.setFotoBase64(base64);
+            }
+            // ------------------------------------------
+
             // Guardar en SQLite (Local)
             new IncidenciaDAO(this).insertar(nueva);
 
@@ -118,6 +124,39 @@ public class AddIncidenciaActivity extends AppCompatActivity {
                 finish();
             });
         });
+    }
+
+    // Helper para convertir imagen a String Base64 ligero
+    private String codificarImagenBase64(String path) {
+        try {
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(path);
+            if (bitmap == null)
+                return null;
+
+            // Redimensionar si es muy grande (max 600px ancho/alto)
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            float maxDim = 600f;
+            if (width > maxDim || height > maxDim) {
+                float ratio = Math.min(maxDim / width, maxDim / height);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+                bitmap = android.graphics.Bitmap.createScaledBitmap(bitmap, width, height, true);
+            }
+
+            // Comprimir a JPEG calidad media
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 60, baos);
+            byte[] b = baos.toByteArray();
+
+            // Encode Base64
+            String encoded = android.util.Base64.encodeToString(b, android.util.Base64.DEFAULT);
+            // Log.d("Base64", "Tamaño string: " + encoded.length());
+            return encoded;
+        } catch (Exception e) {
+            Log.e("Base64", "Error al codificar imagen", e);
+            return null;
+        }
     }
 
     private void pedirPermisoCamara() {
@@ -138,9 +177,15 @@ public class AddIncidenciaActivity extends AppCompatActivity {
         }
 
         if (photoFile != null) {
+            // Se usa el provider configurado
             Uri photoURI = FileProvider.getUriForFile(this, "com.example.ecocity.fileprovider", photoFile);
+
+            // Importante: Otorgar permisos a la app de cámara
+            // Para versiones antiguas a veces requiere flags explícitos, pero FileProvider
+            // suele bastar.
+            // intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             startActivityForResult(intent, 101);
         }
     }
